@@ -10,8 +10,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 
-//I am adding some comment code to test GIT!
-
 namespace WindowsGame1
 {
     /// <summary>
@@ -21,6 +19,9 @@ namespace WindowsGame1
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        DrawBox.BoxView m_boxView;
+        private MouseState previousMouseState;
+        private bool mouseClicked;
 
         public Game1()
         {
@@ -38,6 +39,8 @@ namespace WindowsGame1
         {
             // TODO: Add your initialization logic here
 
+            previousMouseState = Mouse.GetState();
+
             base.Initialize();
         }
 
@@ -51,6 +54,9 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+
+            m_boxView = new DrawBox.BoxView(GraphicsDevice, Content);
+
         }
 
         /// <summary>
@@ -74,6 +80,16 @@ namespace WindowsGame1
                 this.Exit();
 
             // TODO: Add your update logic here
+            if (previousMouseState.LeftButton == ButtonState.Released
+            && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            {
+                mouseClicked = true;
+            }
+            else
+            {
+                mouseClicked = false;
+            }
+
 
             base.Update(gameTime);
         }
@@ -87,6 +103,13 @@ namespace WindowsGame1
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+
+            m_boxView.drawBox();
+
+            if (mouseClicked == true)
+            {
+                m_boxView.boxClicked();
+            }
 
             base.Draw(gameTime);
         }
