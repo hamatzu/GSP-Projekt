@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
+
+//I am adding some comment code to test GIT!
+
 namespace WindowsGame1
 {
     /// <summary>
