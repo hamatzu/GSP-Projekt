@@ -5,11 +5,9 @@ using System.Text;
 
 namespace WindowsGame1.Model
 {
-    class BallSimulation
+    class Level
     {
-        public BallSimulation()
-        {
-            //Ball ball = new Ball();
-        }
+        public const int LEVEL_WIDTH = 10;
+        public const int LEVEL_HEIGHT = 10;
     }
 }
