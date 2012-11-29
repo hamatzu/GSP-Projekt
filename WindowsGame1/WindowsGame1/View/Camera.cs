@@ -15,8 +15,8 @@ namespace WindowsGame1.View
         private float scaleX;
         private float scaleY;
 
-        private int displacementX = 10;
-        private int displacementY = 10;
+        private int displacementX = 20;
+        private int displacementY = 20;
 
         public Camera(Viewport viewport)
         {

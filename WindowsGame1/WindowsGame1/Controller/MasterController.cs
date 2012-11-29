@@ -22,9 +22,8 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Model.BallGame ballGame = new Model.BallGame();
+        Model.BallSimulation ballSimulation = new Model.BallSimulation();
         View.BallView ballView = new View.BallView();
-        View.Camera camera;
 
 
         public MasterController()
@@ -34,8 +33,6 @@ namespace WindowsGame1
 
             graphics.PreferredBackBufferWidth = 640;
             graphics.PreferredBackBufferHeight = 640;
-
-            
         }
 
         /// <summary>
@@ -59,11 +56,6 @@ namespace WindowsGame1
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
-
-            camera = new View.Camera(GraphicsDevice.Viewport);
-
             
             //Load content in view
             ballView.LoadContent(Content, graphics.GraphicsDevice);
@@ -90,7 +82,7 @@ namespace WindowsGame1
                 this.Exit();
 
             // TODO: Add your update logic here
-            ballGame.UpdateSimulation((float)gameTime.ElapsedGameTime.TotalSeconds, GraphicsDevice.Viewport);
+            ballSimulation.Update((float)gameTime.ElapsedGameTime.TotalSeconds, GraphicsDevice.Viewport);
             base.Update(gameTime);
         }
 
@@ -103,7 +95,7 @@ namespace WindowsGame1
             GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
-            ballView.Draw(ballGame, (float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, camera);
+            ballView.Draw(ballSimulation, (float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, GraphicsDevice.Viewport);
 
 
             base.Draw(gameTime);
