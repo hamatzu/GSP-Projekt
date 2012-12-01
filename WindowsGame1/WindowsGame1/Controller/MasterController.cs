@@ -22,10 +22,16 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        View.SplitterSystem splitterSystem = new View.SplitterSystem(new Vector2(5,5));
+        View.SplitterSystem splitterSystem2 = new View.SplitterSystem(new Vector2(2,2));
+
         public MasterController()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferWidth = 640;
+            graphics.PreferredBackBufferHeight = 640;
         }
 
         /// <summary>
@@ -51,6 +57,8 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            splitterSystem.LoadContent(Content);
+            splitterSystem2.LoadContent(Content);
         }
 
         /// <summary>
@@ -75,6 +83,8 @@ namespace WindowsGame1
 
             // TODO: Add your update logic here
 
+            //splitterSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport));
+
             base.Update(gameTime);
         }
 
@@ -84,9 +94,12 @@ namespace WindowsGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
+            splitterSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport), new Vector2(2,2));
+
+            splitterSystem2.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport), new Vector2(5, 5));
 
             base.Draw(gameTime);
         }
