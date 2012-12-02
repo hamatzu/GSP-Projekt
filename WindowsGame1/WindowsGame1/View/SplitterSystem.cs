@@ -17,7 +17,7 @@ namespace WindowsGame1.View
 
         public SplitterSystem(Microsoft.Xna.Framework.Vector2 a_modelPosition)
         {
-            
+            //Create array with all particles 
             for (int i = 0; i < MAX_PARTICLES; i++)
             {
                 allParticles[i] = new SplitterParticle(a_modelPosition, i);
@@ -35,23 +35,19 @@ namespace WindowsGame1.View
                 for (int i = 0; i < MAX_PARTICLES; i++)
                 {
 
-                    //Updatera partikeln
+                    //Update particle
                     allParticles[i].Update(a_elapsedTime, position, i);
 
-                    //Rita bara ut levande partiklar
+                    //Check if particle is alive
                     if (allParticles[i].IsAlive())
                     {
-
-                        //Viewpositioner
-                        Vector2 viewCenterPosition = a_camera.convertToView(allParticles[i].getParticlePostion().X,
+                        //Get particle position and convert to view coordinates
+                        Vector2 particleCenterPosition = a_camera.convertToView(allParticles[i].getParticlePostion().X,
                                                                                 allParticles[i].getParticlePostion().Y);
 
-                        //Räkna ut storleken
-                        Rectangle destinationRectangle = new Rectangle((int)viewCenterPosition.X, (int)viewCenterPosition.Y, 10, 10);
+                        //Spark destination rectangle
+                        Rectangle destinationRectangle = new Rectangle((int)particleCenterPosition.X, (int)particleCenterPosition.Y, 10, 10);
 
-                        //Console.WriteLine(viewCenterPosition.X + ", " + viewCenterPosition.Y);
-
-                        //rita ut partikeln
                         a_spriteBatch.Draw(sparkTexture, destinationRectangle, Color.White);
                     }
                 }

@@ -10,18 +10,18 @@ namespace WindowsGame1.View
     class SplitterParticle
     {
 
-        public static Vector2 GRAVITY = new Vector2(1f, -1.3f);
-        public static float MAX_LIFE = 5.0f;
+        public static Vector2 GRAVITY = new Vector2(0f, 10f);
+        public static float MAX_LIFE = 3.0f;
         public static float DELAY_MAX = 1.0f;
-        public static float MIN_SPEED = 0.1f;
-        public static float MAX_SPEED = 0.5f;
+        public static float MIN_SPEED = .1f;
+        public static float MAX_SPEED = 3f;
         private static Random rand = new Random();
 
         //State
         public float particleLife = 0;
         public float particleDelay = 10f;
-        public Vector2 particlePosition;  
-        public Vector2 particleSpeed;
+        public Vector2 particlePosition;
+        public Vector2 particleVelocity;
 
         public SplitterParticle(Vector2 position, int random_seed)
         {
@@ -31,31 +31,30 @@ namespace WindowsGame1.View
 
         private void Respawn(Vector2 position, int random_seed)
         {
-            Random r = new Random(random_seed);
-
             particleDelay = 0;
             particleLife = MAX_LIFE;
             particlePosition = position;
-            particleSpeed = getRandomSpeed(random_seed);
+            particleVelocity = getRandomVelocity(random_seed);
         }
 
-        private Vector2 getRandomSpeed(int a_randomSeed)
+        private Vector2 getRandomVelocity(int a_randomSeed)
         {
             //skapa en random utifrån seed
             Random rand = new Random(a_randomSeed);
 
-            //x och yield får värden mellan -1 och 1
-            float x = (float)(rand.NextDouble() * 2.0 - 1.0);
-            float y = (float)(rand.NextDouble() * 2.0 - 1.0);
+            //Random values for X and Y
+            float x = (float)rand.NextDouble() - 0.5f;
+            float y = (float)rand.NextDouble() - 0.5f;
 
-            //skapa och normalisera en vektor
+
+            //Normalize vector
             Vector2 ret = new Vector2(x, y);
-            ret.Normalize(); // Vektorn får längden 1.
+            ret.Normalize(); 
 
             //slumpa hastighet mellan 0.1
             float speed = (float)rand.NextDouble();
 
-            //hastighet mellan MIN_SPEED och MAX_SPEED
+            //Speed between MIN_SPEED and MAX_SPEED
             ret = ret * (MIN_SPEED + speed * (MAX_SPEED - MIN_SPEED));
 
             return ret;
@@ -68,20 +67,15 @@ namespace WindowsGame1.View
         }
 
 
-        internal Vector2 getParticlePostion()
-        {
-            return particlePosition;
-        }
-
         internal void Update(float a_elapsedTime, Vector2 respawnPosition, int random_seed)
         {
-            //dra bort liv
+            //Decrease life
             particleLife -= a_elapsedTime;
 
-            //har partikeln dött?
+            //Check if particle is dead
             if (particleLife < 0.0f)
             {
-                //Om vi inte längre lever väntar vi m_delay innan vi respawnar
+                //If not alive delay respanw if any
                 if (particleDelay > 0)
                 {
                     particleDelay -= a_elapsedTime;
@@ -90,18 +84,16 @@ namespace WindowsGame1.View
                 Respawn(respawnPosition, random_seed);
             }
 
-            //Vector2 randomDirection = new Vector2((float)rand.NextDouble() - 0.5f, (float)rand.NextDouble() - 0.5f);
-            //randomDirection.Normalize();
-            //randomDirection = randomDirection * ((float)rand.NextDouble() * MAX_SPEED);
 
-            //GRAVITY = randomDirection;
+            //Calculate new velocity and position
+            particleVelocity = particleVelocity + GRAVITY * a_elapsedTime;
+            particlePosition = particlePosition + particleVelocity * a_elapsedTime;
 
-            //v1 = v0 + a *t
-            //particleSpeed = particleSpeed + GRAVITY * a_elapsedTime;
+        }
 
-
-            //s1 = s0 + var * t
-            particlePosition = particlePosition + particleSpeed * a_elapsedTime;
+        internal Vector2 getParticlePostion()
+        {
+            return particlePosition;
         }
     }
 }
