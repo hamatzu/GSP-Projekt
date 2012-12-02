@@ -22,7 +22,7 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        View.SplitterSystem splitterSystem = new View.SplitterSystem(new Vector2(5,5));
+        View.SmokeSystem smokeSystem = new View.SmokeSystem(new Vector2(5,5));
         public MasterController()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -55,7 +55,7 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            splitterSystem.LoadContent(Content);
+            smokeSystem.LoadContent(Content);
         }
 
         /// <summary>
@@ -91,10 +91,10 @@ namespace WindowsGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.White);
 
             // TODO: Add your drawing code here
-            splitterSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport), new Vector2(5,5));
+            smokeSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport), new Vector2(5,8));
 
             base.Draw(gameTime);
         }

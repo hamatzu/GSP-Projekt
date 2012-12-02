@@ -42,8 +42,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="spark.png">
-      <Name>spark</Name>
+    <Compile Include="smoke.tga">
+      <Name>smoke</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
