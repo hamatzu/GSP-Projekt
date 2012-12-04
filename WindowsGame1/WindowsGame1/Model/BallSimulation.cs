@@ -15,7 +15,7 @@ namespace WindowsGame1.Model
             ball = new Ball();
         }
 
-        internal void Update(float elapsedTimeSeconds, Viewport viewport)
+        internal void Update(float elapsedTimeSeconds)
         {
             //If X greater than 0 going right, if X smaller than 0 going left
             //If Y greater than 0 going down, if Y smaller than 0 going up
@@ -23,7 +23,7 @@ namespace WindowsGame1.Model
                 bool directionY = ball.getBallVelocity().Y > 0;
 
             //Check collision with right wall
-                if (ball.getBallCenterPosition().X > Model.Level.LEVEL_WIDTH - ball.getBallRadius() * 2.3 && directionX == true)
+                if (ball.getBallCenterPosition().X > Model.Level.LEVEL_WIDTH - ball.getBallRadius() && directionX == true)
                 {
                     Console.WriteLine("Hit right wall!");
                     ball.setBallVelocityX(-ball.getBallVelocity().X);
@@ -44,7 +44,7 @@ namespace WindowsGame1.Model
                 }
 
             //Check collision with bottom wall
-                if (ball.getBallCenterPosition().Y > Model.Level.LEVEL_HEIGHT - ball.getBallRadius() * 2.3 && directionY == true)
+                if (ball.getBallCenterPosition().Y > Model.Level.LEVEL_HEIGHT - ball.getBallRadius() && directionY == true)
                 {
                     Console.WriteLine("Hit bottom wall!");
                     ball.setBallVelocityY(-ball.getBallVelocity().Y);

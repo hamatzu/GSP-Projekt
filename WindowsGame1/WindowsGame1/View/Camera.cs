@@ -23,8 +23,8 @@ namespace WindowsGame1.View
             screenWidth = viewport.Width;
             screenHeight = viewport.Height;
 
-            scaleX = (float)screenWidth / (float)Model.Level.LEVEL_WIDTH;
-            scaleY = (float)screenHeight / (float)Model.Level.LEVEL_HEIGHT;
+            scaleX = (float)(screenWidth - 2 * displacementX) / (float)Model.Level.LEVEL_WIDTH;
+            scaleY = (float)(screenHeight - 2 * displacementY) / (float)Model.Level.LEVEL_HEIGHT;
         }
 
         public Vector2 convertToView(float model_X, float model_Y)

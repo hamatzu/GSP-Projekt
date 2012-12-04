@@ -82,7 +82,7 @@ namespace WindowsGame1
                 this.Exit();
 
             // TODO: Add your update logic here
-            ballSimulation.Update((float)gameTime.ElapsedGameTime.TotalSeconds, GraphicsDevice.Viewport);
+            ballSimulation.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
