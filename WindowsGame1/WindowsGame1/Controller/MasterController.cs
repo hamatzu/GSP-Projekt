@@ -94,7 +94,7 @@ namespace WindowsGame1
             GraphicsDevice.Clear(Color.White);
 
             // TODO: Add your drawing code here
-            smokeSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport), new Vector2(5,8));
+            smokeSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport));
 
             base.Draw(gameTime);
         }
