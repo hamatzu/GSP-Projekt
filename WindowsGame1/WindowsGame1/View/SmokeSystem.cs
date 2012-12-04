@@ -19,7 +19,7 @@ namespace WindowsGame1.View
         private Vector2 origin;
         private float scale;
         private Vector2 systemPosition;
-        private int particlesPerSecond = 6;
+        private float particlesPerSecond = 1.5f;
         private float releaseRate = 0f;
         private Vector2 textureOrigin;
         private float initialDelayRemaining = 0f;
@@ -31,7 +31,7 @@ namespace WindowsGame1.View
         public SmokeSystem(Microsoft.Xna.Framework.Vector2 a_modelPosition)
         {
             systemPosition = a_modelPosition;
-            releaseRate = 1.0f / (float)particlesPerSecond;
+            releaseRate = 1f / (float)particlesPerSecond;
             //Create array with all particles 
             
         }
@@ -45,22 +45,7 @@ namespace WindowsGame1.View
         internal void UpdateAndDraw(float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)
         {
             
-            // update the initial delay
-            if (initialDelayRemaining > 0.0f)
-            {
-                initialDelayRemaining -= a_elapsedTime;
-                return;
-            }
-            
-            for (int z = 0; z < allSmokeParticles.Count; z++)
-            {
-                allSmokeParticles.ElementAt(z).Update(a_elapsedTime, systemPosition, z);
-                if (allSmokeParticles.ElementAt(z).getParticleTL() <= 0)
-                {
-                    allSmokeParticles.RemoveAt(z);
-                    z--;
-                }
-            }
+           
 
             releaseTimer += a_elapsedTime;
             while (releaseTimer >= releaseRate)
@@ -87,18 +72,18 @@ namespace WindowsGame1.View
                                                                             allSmokeParticles.ElementAt(index).getParticlePostion().Y);
 
                     //Spark destination rectangle
-                    Rectangle destinationRectangle = new Rectangle((int)particleCenterPosition.X, (int)particleCenterPosition.Y, (int)allSmokeParticles.ElementAt(index).getScale(), (int)allSmokeParticles.ElementAt(index).getScale());
+                    Rectangle destinationRectangle = new Rectangle((int)particleCenterPosition.X, (int)particleCenterPosition.Y, smokeTexture.Width, smokeTexture.Height);
 
                     float a = allSmokeParticles.ElementAt(index).GetVisibility();
                     Color particleColor = new Color(a, a, a, a);
 
                     scale = allSmokeParticles.ElementAt(index).getScale();
-                    rotation = 90f;
-                    //origin = new Vector2(5, 8);
+
+                    rotation = allSmokeParticles.ElementAt(index).getRotation();
 
 
-                    //a_spriteBatch.Draw(smokeTexture, position, destinationRectangle, particleColor, rotation, origin, scale, SpriteEffects.None, 0);
-                    a_spriteBatch.Draw(smokeTexture, destinationRectangle, Color.White);
+                    a_spriteBatch.Draw(smokeTexture, particleCenterPosition, null, particleColor, rotation, textureOrigin, scale, SpriteEffects.None, 0);
+                    //a_spriteBatch.Draw(smokeTexture, destinationRectangle, particleColor);
 
                 }
                 else
@@ -111,6 +96,16 @@ namespace WindowsGame1.View
                 }
             }
             a_spriteBatch.End();
+
+            for (int z = 0; z < allSmokeParticles.Count; z++)
+            {
+                allSmokeParticles.ElementAt(z).Update(a_elapsedTime, systemPosition, z);
+                if (allSmokeParticles.ElementAt(z).getParticleTL() <= 0)
+                {
+                    allSmokeParticles.RemoveAt(z);
+                    z--;
+                }
+            }
         }
     }
 }

@@ -10,23 +10,24 @@ namespace WindowsGame1.View
     class SmokeParticle
     {
 
-        public static Vector2 GRAVITY = new Vector2(0, -0.4f);
-        public static float MAX_LIFE = 30f;
+        public static Vector2 GRAVITY = new Vector2(0, -0.1f);
+        public static float MAX_LIFE = 10f;
         public static float DELAY_MAX = 3f;
         public static float MIN_SPEED = .1f;
         public static float MAX_SPEED = .2f;
         private static Random rand = new Random();
 
         //State
-        public float particleLife = 20f;
+        public float particleLife;
         public float particleDelay = 2f;
         public float particleTimeLived = 0f;
         public Vector2 particlePosition;
         public Vector2 particleVelocity;
-        public float minScale = 65f;
-        public float maxScale = 150f;
-        public float particleScale = 75f;
+        public float minScale = 1f;
+        public float maxScale = 10f;
+        public float particleScale = 1f;
         private float lifePercent;
+        private float particleRotation = 1f;
 
         public SmokeParticle(Vector2 position, int random_seed)
         {
@@ -39,6 +40,7 @@ namespace WindowsGame1.View
         {
             particleDelay = 0;
             particleLife = MAX_LIFE;
+            particleTimeLived = 0;
             particlePosition = position;
             particleVelocity = getRandomVelocity(random_seed);
         }
@@ -50,8 +52,8 @@ namespace WindowsGame1.View
             Random rand = new Random(a_randomSeed);
 
             //x och yield får värden mellan -1 och 1
-            float x = (float)rand.NextDouble() * 2 - 1f;
-            float y = (float)rand.NextDouble() * 2 - 1f;
+            float x = (float)rand.NextDouble() - 0.5f;
+            float y = (float)rand.NextDouble() - 0.5f;
 
             //skapa och normalisera en vektor
             Vector2 ret = new Vector2(x, y);
@@ -81,12 +83,6 @@ namespace WindowsGame1.View
             //Check if particle is dead
             if (particleLife < 0.0f)
             {
-                //If not alive delay respawn if any
-                if (particleDelay > 0)
-                {
-                    particleDelay -= a_elapsedTime;
-                    return;
-                }
 
                 Respawn(respawnPosition, random_seed);
             }
@@ -94,6 +90,7 @@ namespace WindowsGame1.View
             particleTimeLived += a_elapsedTime;
             lifePercent = particleTimeLived / MAX_LIFE;
             particleScale = minScale + lifePercent * maxScale;
+            particleRotation += a_elapsedTime / 5;
            
             //v1 = v0 + a *t
             particleVelocity = particleVelocity + GRAVITY * a_elapsedTime;
@@ -121,6 +118,11 @@ namespace WindowsGame1.View
         internal float GetVisibility()
         {
             return particleLife / MAX_LIFE;
+        }
+
+        internal float getRotation()
+        {
+            return particleRotation;
         }
     }
 }

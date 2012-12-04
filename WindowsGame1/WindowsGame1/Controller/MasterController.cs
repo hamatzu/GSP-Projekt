@@ -22,14 +22,14 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        View.SmokeSystem smokeSystem = new View.SmokeSystem(new Vector2(5,5));
+        View.SmokeSystem smokeSystem = new View.SmokeSystem(new Vector2(5,9));
         public MasterController()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            graphics.PreferredBackBufferWidth = 500;
-            graphics.PreferredBackBufferHeight = 320;
+            graphics.PreferredBackBufferWidth = 640;
+            graphics.PreferredBackBufferHeight = 640;
         }
 
         /// <summary>
