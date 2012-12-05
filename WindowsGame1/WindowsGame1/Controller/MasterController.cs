@@ -21,6 +21,11 @@ namespace WindowsGame1
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        KeyboardState oldState;
+
+        Model.Game game = new Model.Game();
+        View.GameView gameView = new View.GameView();
+        View.Camera camera;
 
         public MasterController()
         {
@@ -51,6 +56,10 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+
+            camera = new View.Camera(GraphicsDevice.Viewport);
+
+            gameView.LoadContent(Content);
         }
 
         /// <summary>
@@ -75,6 +84,33 @@ namespace WindowsGame1
 
             // TODO: Add your update logic here
 
+            KeyboardState newState = Keyboard.GetState();
+
+            // Is the Left key down?
+            if (newState.IsKeyDown(Keys.Left))
+            {
+                // If not down last update, key has just been pressed.
+                if (!oldState.IsKeyDown(Keys.Left))
+                {
+                    game.getPlayer().goLeft();
+                }
+            }
+            else if (newState.IsKeyDown(Keys.Right))
+            {
+                // If not down last update, key has just been pressed.
+                if (!oldState.IsKeyDown(Keys.Right))
+                {
+                    game.getPlayer().goRight();
+                }
+            }
+            else
+            {
+                game.getPlayer().stop();
+            }
+
+
+            game.UpdateSimulation((float)gameTime.ElapsedGameTime.TotalSeconds);
+
             base.Update(gameTime);
         }
 
@@ -87,6 +123,8 @@ namespace WindowsGame1
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+
+            gameView.DrawPlayer(game, (float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, camera);
 
             base.Draw(gameTime);
         }
