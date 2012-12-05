@@ -19,13 +19,13 @@ namespace WindowsGame1.View
         private Vector2 origin;
         private float scale;
         private Vector2 systemPosition;
-        private float particlesPerSecond = 1.5f;
+        private float particlesPerSecond = 2f;
         private float releaseRate = 0f;
         private Vector2 textureOrigin;
         private float releaseTimer = 0f;
         private float particleSystemTL = 0f;
         private int totalParticles = 0;
-        private int maxParticles = 10;
+        private int maxParticles = 20;
 
 
 
@@ -56,7 +56,7 @@ namespace WindowsGame1.View
                 {
                     if (totalParticles < maxParticles)
                     {
-                        allSmokeParticles.Add(new SmokeParticle(systemPosition, allSmokeParticles.Count));
+                        allSmokeParticles.Add(new SmokeParticle(systemPosition, totalParticles));
                         totalParticles += 1;
                     }
                     
