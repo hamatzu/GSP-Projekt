@@ -22,8 +22,10 @@ namespace WindowsGame1.View
         private float particlesPerSecond = 1.5f;
         private float releaseRate = 0f;
         private Vector2 textureOrigin;
-        private float initialDelayRemaining = 0f;
         private float releaseTimer = 0f;
+        private float particleSystemTL = 0f;
+        private int totalParticles = 0;
+        private int maxParticles = 10;
 
 
 
@@ -44,15 +46,20 @@ namespace WindowsGame1.View
 
         internal void UpdateAndDraw(float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)
         {
+            particleSystemTL += a_elapsedTime;
             
-           
-
             releaseTimer += a_elapsedTime;
+            
             while (releaseTimer >= releaseRate)
             {
                 for (int i = 0; i < INIT_PARTICLES; i++)
                 {
-                    allSmokeParticles.Add(new SmokeParticle(systemPosition, i));
+                    if (totalParticles < maxParticles)
+                    {
+                        allSmokeParticles.Add(new SmokeParticle(systemPosition, allSmokeParticles.Count));
+                        totalParticles += 1;
+                    }
+                    
                 }
                 releaseTimer -= releaseRate;
             }
@@ -81,28 +88,22 @@ namespace WindowsGame1.View
 
                     rotation = allSmokeParticles.ElementAt(index).getRotation();
 
-
                     a_spriteBatch.Draw(smokeTexture, particleCenterPosition, null, particleColor, rotation, textureOrigin, scale, SpriteEffects.None, 0);
                     //a_spriteBatch.Draw(smokeTexture, destinationRectangle, particleColor);
 
                 }
-                else
-                {
-                    //Create array with all particles 
-                    for (int i = 0; i < INIT_PARTICLES; i++)
-                    {
-                        allSmokeParticles.Add(new SmokeParticle(systemPosition, i));
-                    }
-                }
+
             }
             a_spriteBatch.End();
+
 
             for (int z = 0; z < allSmokeParticles.Count; z++)
             {
                 allSmokeParticles.ElementAt(z).Update(a_elapsedTime, systemPosition, z);
-                if (allSmokeParticles.ElementAt(z).getParticleTL() <= 0)
+                if (!allSmokeParticles.ElementAt(z).IsAlive())
                 {
                     allSmokeParticles.RemoveAt(z);
+                    Console.WriteLine("removed");
                     z--;
                 }
             }

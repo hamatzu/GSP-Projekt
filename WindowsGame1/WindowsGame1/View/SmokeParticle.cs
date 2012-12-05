@@ -31,19 +31,19 @@ namespace WindowsGame1.View
 
         public SmokeParticle(Vector2 position, int random_seed)
         {
-            Respawn(position, random_seed);
-            particleLife = 0;
-            particleTimeLived = 0;
-        }
-
-        private void Respawn(Vector2 position, int random_seed)
-        {
-            particleDelay = 0;
             particleLife = MAX_LIFE;
             particleTimeLived = 0;
             particlePosition = position;
             particleVelocity = getRandomVelocity(random_seed);
         }
+
+        //private void Respawn(Vector2 position, int random_seed)
+        //{
+        //    particleLife = MAX_LIFE;
+        //    particleTimeLived = 0;
+        //    particlePosition = position;
+        //    particleVelocity = getRandomVelocity(random_seed);
+        //}
 
 
         private Vector2 getRandomVelocity(int a_randomSeed)
@@ -80,12 +80,11 @@ namespace WindowsGame1.View
             //Decrease life
             particleLife -= a_elapsedTime;
 
-            //Check if particle is dead
-            if (particleLife < 0.0f)
-            {
-
-                Respawn(respawnPosition, random_seed);
-            }
+            ////Check if particle is dead
+            //if (particleLife < 0.0f)
+            //{
+            //    Respawn(respawnPosition, random_seed);
+            //}
 
             particleTimeLived += a_elapsedTime;
             lifePercent = particleTimeLived / MAX_LIFE;
@@ -110,9 +109,9 @@ namespace WindowsGame1.View
             return particlePosition;
         }
 
-        internal float getParticleTL()
+        internal float getParticleLife()
         {
-            return particleTimeLived;
+            return particleLife;
         }
 
         internal float GetVisibility()
