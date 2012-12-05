@@ -5,3 +5,16 @@ obj
 
 # mstest test results
 TestResults
+
+#Xna projects
+*.swp
+*.suo
+**/bin/*
+**/obj/*
+*.chachefile
+*.Debug.cachefile
+*.ccgame
+!*.dll
+
+.Debug.cachefile
+.chachefile
