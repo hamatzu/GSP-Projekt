@@ -13,7 +13,8 @@ namespace WindowsGame1.View
         Texture2D ballTexture;
         Texture2D whiteTexture;
         Texture2D blackTexture;
-        Camera camera;
+        Texture2D lineTexture;
+        
 
         internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager a_content, GraphicsDevice a_graphicdevice)
         {
@@ -21,31 +22,19 @@ namespace WindowsGame1.View
             whiteTexture = a_content.Load<Texture2D>("white");
             blackTexture = a_content.Load<Texture2D>("black");
 
+            lineTexture = new Texture2D(a_graphicdevice, 1, 1, false, SurfaceFormat.Color);
+            lineTexture.SetData(new[] { Color.White });
+
         }
 
-        internal void Draw(Model.BallSimulation ballSimulation, float elapsedTime, Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Viewport viewport)
+        internal void Draw(Model.BallSimulation ballSimulation, Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Camera camera)
         {
-            //Call camera
-                camera = new Camera(viewport);
 
             //Get ball properties
                 float ballRadius = ballSimulation.getBall().getBallRadius();
                 float ballWidth = ballSimulation.getBall().getBallWidth();
                 Vector2 ballCenterPosition = ballSimulation.getBall().getBallCenterPosition();
 
-            //Calculate white rectangle border  
-                Vector2 bordertopLeft = new Vector2(ballRadius * (camera.GetScaleX() / 2), ballRadius * (camera.GetScaleY() / 2));
-                float offsetX = (ballRadius * (camera.GetScaleX() / 2) * 2);
-                float offsetY = (ballRadius * (camera.GetScaleY() / 2) * 2);
-
-                Rectangle borderDestinationRectangle = new Rectangle((int)bordertopLeft.X, (int)bordertopLeft.Y, (int)camera.GetScreenWidth() - (int)offsetX, (int)camera.GetScreenHeight() - (int)offsetY);
-
-            //Calculate black inner rectangle
-                Vector2 innertopLeft = new Vector2((bordertopLeft.X + 2f), (bordertopLeft.Y + 2f));
-                offsetX = (bordertopLeft.X + 2f) * 2;
-                offsetY = (bordertopLeft.X + 2f) * 2;
-
-                Rectangle innerDestinationRectangle = new Rectangle((int)innertopLeft.X, (int)innertopLeft.Y, (int)camera.GetScreenWidth() - (int)offsetX, (int)camera.GetScreenHeight() - (int)offsetY);
 
             //Calculate ball to draw
                 float viewBallWidth = (ballWidth * camera.GetScaleX());
@@ -57,11 +46,26 @@ namespace WindowsGame1.View
                 Rectangle ballDestinationRectangle = new Rectangle((int)ballviewTopLeft.X, (int)ballviewTopLeft.Y, (int)viewBallWidth, (int)viewBallHeight);
 
 
-            //Draw border and ball
                 spriteBatch.Begin();
-                spriteBatch.Draw(whiteTexture, borderDestinationRectangle, Color.White);
-                spriteBatch.Draw(blackTexture, innerDestinationRectangle, Color.White);
-                spriteBatch.Draw(ballTexture, ballDestinationRectangle, Color.White);
+
+                    //Draw border
+                        float borderWidth = 2f;
+
+                        //Top border
+                        spriteBatch.Draw(lineTexture, new Vector2(camera.GetDisplacementX(), camera.GetDisplacementX()), null, Color.White, 0f, Vector2.Zero, new Vector2(camera.GetScreenWidth() - (2*camera.GetDisplacementX()), borderWidth), SpriteEffects.None, 0);
+
+                        //Right border
+                        spriteBatch.Draw(lineTexture, new Vector2(camera.GetScreenWidth() - camera.GetDisplacementX(), camera.GetDisplacementY()), null, Color.White, 0f, Vector2.Zero, new Vector2(borderWidth, camera.GetScreenHeight() - (2 * camera.GetDisplacementY())), SpriteEffects.None, 0);
+                
+                        //Bottom border
+                        spriteBatch.Draw(lineTexture, new Vector2(camera.GetDisplacementX(), camera.GetScreenHeight() - (camera.GetDisplacementY())), null, Color.White, 0f, Vector2.Zero, new Vector2(camera.GetScreenWidth() - (2 * camera.GetDisplacementX() - borderWidth), borderWidth), SpriteEffects.None, 0);
+
+                        //Left Border
+                        spriteBatch.Draw(lineTexture, new Vector2(camera.GetDisplacementX(), camera.GetDisplacementX()), null, Color.White, 0f, Vector2.Zero, new Vector2(borderWidth, camera.GetScreenHeight() - (2 * camera.GetDisplacementY())), SpriteEffects.None, 0);    
+               
+                        //Draw Ball
+                        spriteBatch.Draw(ballTexture, ballDestinationRectangle, Color.White);
+
                 spriteBatch.End();
         }
     }

@@ -25,28 +25,24 @@ namespace WindowsGame1.Model
             //Check collision with right wall
                 if (ball.getBallCenterPosition().X > Model.Level.LEVEL_WIDTH - ball.getBallRadius() && directionX == true)
                 {
-                    Console.WriteLine("Hit right wall!");
                     ball.setBallVelocityX(-ball.getBallVelocity().X);
                 }
 
             //Check collision with left wall
                 if (ball.getBallCenterPosition().X < 0 + ball.getBallRadius() && directionX == false)
                 {
-                    Console.WriteLine("Hit left wall!");
                     ball.setBallVelocityX(Math.Abs(ball.getBallVelocity().X));
                 }
 
             //Check collision with top wall
                 if (ball.getBallCenterPosition().Y < 0 + ball.getBallRadius() && directionY == false)
                 {
-                    Console.WriteLine("Hit top wall!");
                     ball.setBallVelocityY(ball.getBallVelocity().Y - (ball.getBallVelocity().Y * 2));
                 }
 
             //Check collision with bottom wall
                 if (ball.getBallCenterPosition().Y > Model.Level.LEVEL_HEIGHT - ball.getBallRadius() && directionY == true)
                 {
-                    Console.WriteLine("Hit bottom wall!");
                     ball.setBallVelocityY(-ball.getBallVelocity().Y);
                 }
 

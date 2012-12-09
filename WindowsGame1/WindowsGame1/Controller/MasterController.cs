@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using WindowsGame1.View;
 
 
 //I am adding some comment code to test GIT!
@@ -24,6 +25,8 @@ namespace WindowsGame1
 
         Model.BallSimulation ballSimulation = new Model.BallSimulation();
         View.BallView ballView = new View.BallView();
+        Camera camera;
+        
 
 
         public MasterController()
@@ -44,6 +47,8 @@ namespace WindowsGame1
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            camera = new Camera(graphics.GraphicsDevice.Viewport);
+
             this.IsMouseVisible = true;
             base.Initialize();
         }
@@ -95,7 +100,7 @@ namespace WindowsGame1
             GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
-            ballView.Draw(ballSimulation, (float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, GraphicsDevice.Viewport);
+            ballView.Draw(ballSimulation, spriteBatch, camera);
 
 
             base.Draw(gameTime);
