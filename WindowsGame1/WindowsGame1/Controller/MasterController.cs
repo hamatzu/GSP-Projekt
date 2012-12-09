@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using WindowsGame1.Model;
 
 
 namespace WindowsGame1
@@ -20,7 +21,9 @@ namespace WindowsGame1
         GraphicsDeviceManager m_graphics;
         SpriteBatch m_spriteBatch;
         View.ChessView m_view = new View.ChessView();
-        string m_playerTurn = "white";
+        Model.ChessGame m_game = new Model.ChessGame();
+        Camera m_camera;
+
         KeyboardState oldState;
 
         public MasterController()
@@ -28,10 +31,12 @@ namespace WindowsGame1
             m_graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
+
             //Set screen width and height
             m_graphics.IsFullScreen = false;
-            m_graphics.PreferredBackBufferWidth = 640;
-            m_graphics.PreferredBackBufferHeight = 640;
+            m_graphics.PreferredBackBufferWidth = 320;
+            m_graphics.PreferredBackBufferHeight = 240;
+
         }
 
         /// <summary>
@@ -43,6 +48,7 @@ namespace WindowsGame1
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
             base.Initialize();
         }
 
@@ -88,6 +94,7 @@ namespace WindowsGame1
         private void UpdateInput()
         {
             KeyboardState newState = Keyboard.GetState();
+            m_camera = new Camera(m_graphics.GraphicsDevice.Viewport);
 
             // Is the SPACE key down?
             if (newState.IsKeyDown(Keys.Space))
@@ -95,13 +102,13 @@ namespace WindowsGame1
                 // If not down last update, key has just been pressed.
                 if (!oldState.IsKeyDown(Keys.Space))
                 {
-                    if (m_playerTurn == "white" || m_playerTurn == null)
+                    if (m_game.getPlayerTurn() == ChessGame.PlayerTurn.White)
                     {
-                        m_playerTurn = "black";
+                        m_game.setPlayerTurn(ChessGame.PlayerTurn.Black);
                     }
-                    else if (m_playerTurn == "black")
+                    else if (m_game.getPlayerTurn() == ChessGame.PlayerTurn.Black)
                     {
-                        m_playerTurn = "white";
+                        m_game.setPlayerTurn(ChessGame.PlayerTurn.White);
                     }
                 }
             }
@@ -126,10 +133,7 @@ namespace WindowsGame1
                     }
                 }
             }
-
-
-
-
+            
             // Update saved state.
             oldState = newState;
         }
@@ -144,8 +148,8 @@ namespace WindowsGame1
 
             // TODO: Add your drawing code here
 
-            m_view.Draw(a_gameTime.ElapsedGameTime.TotalSeconds, m_spriteBatch, GraphicsDevice.Viewport, m_playerTurn);
-
+            m_view.Draw(m_spriteBatch, m_camera, m_game);
+                
             base.Draw(a_gameTime);
         }
     }

@@ -9,7 +9,6 @@ namespace WindowsGame1.Model
 {
     class Camera
     {
-        string playerTurn = "white";
         float visualX;
         float visualY;
         int screenWidth;
@@ -17,8 +16,6 @@ namespace WindowsGame1.Model
         float scaleX;
         float scaleY;
         int borderSize;
-        float drawAreaX;
-        float drawAreaY;
 
         public Camera(Viewport a_viewport)
         {
@@ -30,25 +27,22 @@ namespace WindowsGame1.Model
             scaleX = ((float)screenWidth - 2 * borderSize) / (float)Model.Level.LEVEL_WIDTH;
             scaleY = ((float)screenHeight - 2 * borderSize) / (float)Model.Level.LEVEL_HEIGHT;
 
-            drawAreaX = ((float)screenWidth - 2 * borderSize);
-            drawAreaY = ((float)screenHeight - 2 * borderSize);
-
         }
 
-        internal void setPlayer(string a_playerTurn)
-        {
-            playerTurn = a_playerTurn;
-        }
 
-        internal String getPlayer()
-        {
-            return playerTurn;
-        }
-
-        public Vector2 convertToVisual(float a_logicX, float a_logicY)
+        public Vector2 convertToWhiteVisual(float a_logicX, float a_logicY)
         {
             visualX = borderSize + (a_logicX * scaleX);
             visualY = borderSize + (a_logicY * scaleY);
+
+            Vector2 m_visualCoordinates = new Vector2(visualX, visualY);
+            return m_visualCoordinates;
+        }
+
+        public Vector2 convertToBlackVisual(float a_logicX, float a_logicY)
+        {
+            visualX = borderSize + (((Model.Level.LEVEL_WIDTH - 1) - a_logicX) * scaleX);
+            visualY = borderSize + (((Model.Level.LEVEL_HEIGHT - 1) - a_logicY) * scaleY);
 
             Vector2 m_visualCoordinates = new Vector2(visualX, visualY);
             return m_visualCoordinates;
@@ -62,6 +56,11 @@ namespace WindowsGame1.Model
         internal float getScaleY()
         {
             return scaleY;
+        }
+
+        internal int getScreenHeight()
+        {
+            return screenHeight;
         }
     }
 }
