@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using WindowsGame1.Model;
 
 
 //I am adding some comment code to test GIT!
@@ -23,14 +24,18 @@ namespace WindowsGame1
         SpriteBatch spriteBatch;
         KeyboardState oldState;
 
-        Model.Game game = new Model.Game();
-        View.GameView gameView = new View.GameView();
+        
         View.Camera camera;
+        Model.Game game;
+        View.GameView gameView;
 
         public MasterController()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferWidth = 640;
+            graphics.PreferredBackBufferHeight = 640;
         }
 
         /// <summary>
@@ -43,6 +48,7 @@ namespace WindowsGame1
         {
             // TODO: Add your initialization logic here
 
+            this.Window.Title = "In Search of Disco in the Outback";
             base.Initialize();
         }
 
@@ -56,8 +62,10 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            game = new Model.Game();
+            gameView = new View.GameView(spriteBatch);
 
-            camera = new View.Camera(GraphicsDevice.Viewport);
+            camera = new View.Camera();
 
             gameView.LoadContent(Content);
         }
@@ -85,6 +93,7 @@ namespace WindowsGame1
             // TODO: Add your update logic here
 
             KeyboardState newState = Keyboard.GetState();
+            game.getPlayer().setCurrentState(Player.State.Standing);
 
             // Is the Left key down?
             if (newState.IsKeyDown(Keys.Left))
@@ -92,24 +101,38 @@ namespace WindowsGame1
                 // If not down last update, key has just been pressed.
                 if (!oldState.IsKeyDown(Keys.Left))
                 {
-                    game.getPlayer().goLeft();
+                    game.getPlayer().setCurrentState(Player.State.Walking);
+                    game.getPlayer().setCurrentDirection(Player.Direction.Left);
+                    game.goLeft();
                 }
             }
-            else if (newState.IsKeyDown(Keys.Right))
+            
+            if (newState.IsKeyDown(Keys.Right))
             {
                 // If not down last update, key has just been pressed.
                 if (!oldState.IsKeyDown(Keys.Right))
                 {
-                    game.getPlayer().goRight();
+                    game.getPlayer().setCurrentState(Player.State.Walking);
+                    game.getPlayer().setCurrentDirection(Player.Direction.Right);
+                    game.goRight();
                 }
             }
-            else
+
+            if (newState.IsKeyDown(Keys.Space))
             {
-                game.getPlayer().stop();
+                // If not down last update, key has just been pressed.
+                if (!oldState.IsKeyDown(Keys.Space))
+                {
+                    game.getPlayer().setCurrentState(Player.State.Jumping);
+                    game.playerJump();
+                }
             }
 
+            
 
-            game.UpdateSimulation((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+
+            game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }
@@ -124,7 +147,14 @@ namespace WindowsGame1
 
             // TODO: Add your drawing code here
 
-            gameView.DrawPlayer(game, (float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, camera);
+            //update camera
+            camera.centerOn(game.getPlayerPosition(),
+                              new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height),
+                              new Vector2(Model.Level.LEVEL_WIDTH, Model.Level.LEVEL_HEIGHT));
+
+            camera.setZoom(42);
+
+            gameView.DrawLevel(graphics.GraphicsDevice, game.getLevel(), camera, game.getPlayerPosition(), game.getPlayer());
 
             base.Draw(gameTime);
         }

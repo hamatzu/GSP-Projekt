@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace WindowsGame1.Model
 {
@@ -18,6 +19,27 @@ namespace WindowsGame1.Model
         internal Level()
         {
             GenerateLevel();
+        }
+
+        //Check if player is colliding with a tile
+        internal bool IsCollidingAt(FloatRectangle a_rect)
+        {
+            Vector2 tileSize = new Vector2(1f, 1f);
+            for (int x = 0; x < LEVEL_WIDTH; x++)
+            {
+                for (int y = 0; y < LEVEL_HEIGHT; y++)
+                {
+                    FloatRectangle rect = FloatRectangle.createFromTopLeft(new Vector2(x, y), tileSize);
+                    if (a_rect.isIntersecting(rect))
+                    {
+                        if (levelTiles[x, y].isBlocked())
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private void GenerateLevel()

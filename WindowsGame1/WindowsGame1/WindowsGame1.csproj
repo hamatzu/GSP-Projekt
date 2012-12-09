@@ -107,6 +107,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\CollisionDetails.cs" />
+    <Compile Include="Model\FloatRectangle.cs" />
     <Compile Include="Model\Tile.cs" />
     <Compile Include="View\GameView.cs" />
     <Compile Include="Model\Game.cs" />

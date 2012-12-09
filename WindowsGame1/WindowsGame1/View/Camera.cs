@@ -9,22 +9,19 @@ namespace WindowsGame1.View
 {
     class Camera
     {
-        private int screenWidth;
-        private int screenHeight;
-
         private float scaleX;
         private float scaleY;
 
-        private int displacementX = 20;
-        private int displacementY = 20;
+        private Vector2 modelCenterPosition = new Vector2(0, 0);
+        private float scale = 32.0f;
 
-        public Camera(Viewport viewport)
+        private int displacementX = 0;
+        private int displacementY = 0;
+
+
+        internal float getScale()
         {
-            screenWidth = viewport.Width;
-            screenHeight = viewport.Height;
-
-            scaleX = (float)(screenWidth - 2 * displacementX) / (float)Model.Level.LEVEL_WIDTH;
-            scaleY = (float)(screenHeight - 2 * displacementY) / (float)Model.Level.LEVEL_HEIGHT;
+            return scale;
         }
 
         public Vector2 convertToView(float model_X, float model_Y)
@@ -51,14 +48,48 @@ namespace WindowsGame1.View
             return scaleY;
         }
 
-        internal float getScreenWidth()
+        internal Vector2 getViewPosition(float x, float y, Vector2 a_viewPortSize)
         {
-            return screenWidth;
+            Vector2 modelPosition = new Vector2(x, y);
+
+            Vector2 modelViewPortSize = new Vector2(a_viewPortSize.X / scale, a_viewPortSize.Y / scale);
+
+            //get model top left position
+            Vector2 modelTopLeftPosition = modelCenterPosition - modelViewPortSize / 2.0f;
+
+
+
+            return (modelPosition - modelTopLeftPosition  )* scale;
         }
 
-        internal float getScreenHeight()
+        internal void setZoom(float a_scale)
         {
-            return screenHeight;
+            scale = a_scale;
+        }
+
+        internal void centerOn(Vector2 a_newCenterPosition, Vector2 a_viewPortSize, Vector2 a_levelSize)
+        {
+            modelCenterPosition = a_newCenterPosition;
+
+            Vector2 modelViewPortSize = new Vector2(a_viewPortSize.X / scale, a_viewPortSize.Y / scale);
+
+            //check left
+            if (modelCenterPosition.X < modelViewPortSize.X / 2.0f)
+            {
+                modelCenterPosition.X = modelViewPortSize.X / 2.0f;
+            }
+
+            //check bottom
+            if (modelCenterPosition.Y > a_levelSize.Y - modelViewPortSize.Y / 2.0f)
+            {
+                modelCenterPosition.Y = a_levelSize.Y - modelViewPortSize.Y / 2.0f;
+            }
+
+            //check top
+            if (modelCenterPosition.Y < modelViewPortSize.Y / 2.0f)
+            {
+                modelCenterPosition.Y = modelViewPortSize.Y / 2.0f;
+            }
         }
     }
 }
