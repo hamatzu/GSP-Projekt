@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using WindowsGame1.View;
 
 
 //I am adding some comment code to test GIT!
@@ -22,10 +23,15 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        ExplosionView explosionView;
+
         public MasterController()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferHeight = 400;
+            graphics.PreferredBackBufferWidth = 400;
         }
 
         /// <summary>
@@ -49,6 +55,9 @@ namespace WindowsGame1
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            explosionView = new ExplosionView(spriteBatch);
+
+            explosionView.LoadContent(Content);
 
             // TODO: use this.Content to load your game content here
         }
@@ -74,6 +83,7 @@ namespace WindowsGame1
                 this.Exit();
 
             // TODO: Add your update logic here
+            explosionView.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }
@@ -84,9 +94,11 @@ namespace WindowsGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
+
+            explosionView.Draw();
 
             base.Draw(gameTime);
         }
