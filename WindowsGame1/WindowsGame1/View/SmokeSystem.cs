@@ -52,14 +52,10 @@ namespace WindowsGame1.View
             
             while (releaseTimer >= releaseRate)
             {
-                for (int i = 0; i < INIT_PARTICLES; i++)
+                if (totalParticles < maxParticles)
                 {
-                    if (totalParticles < maxParticles)
-                    {
-                        allSmokeParticles.Add(new SmokeParticle(systemPosition, totalParticles));
-                        totalParticles += 1;
-                    }
-                    
+                    allSmokeParticles.Add(new SmokeParticle(systemPosition, totalParticles));
+                    totalParticles += 1;
                 }
                 releaseTimer -= releaseRate;
             }
@@ -107,6 +103,7 @@ namespace WindowsGame1.View
                     z--;
                 }
             }
+
         }
     }
 }
