@@ -54,6 +54,17 @@ namespace WindowsGame1.Model
                 player.setPlayerPosition(details.positionAfterCollision());
                 player.setPlayerSpeed(details.speedAfterCollision());
             }
+
+            if (!hasCollidedWithGround)
+            {
+                Console.WriteLine("In air");
+                player.setCurrentState(Player.State.Falling);
+            }
+            else
+            {
+                player.setCurrentState(Player.State.Standing);
+                Console.WriteLine("On Ground");
+            }
         }
 
         private bool didCollide(Vector2 a_centerBottom, Vector2 a_size)

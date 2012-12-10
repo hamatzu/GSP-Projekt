@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using WindowsGame1.Model;
+using Microsoft.Xna.Framework.Media;
 
 namespace WindowsGame1.View
 {
@@ -12,9 +13,16 @@ namespace WindowsGame1.View
     {
         Texture2D playerTexture;
         Texture2D tileTexture;
+        Song backgroundMusic;
+        ColorChanger colorChanger = new ColorChanger(
+                                        .4f, //Time between color changes
+                                        true, //Is the color changer active?
+                                        Color.Red, Color.Orange, Color.Yellow, Color.Green, //All the colors we want to cycle through
+                                            Color.Blue, Color.Indigo, Color.Violet);
 
         private int textureTileSize = 64;
         private SpriteBatch spriteBatch;
+        private Texture2D backgroundTexture;
 
         public GameView(SpriteBatch batch)
         {
@@ -23,19 +31,36 @@ namespace WindowsGame1.View
 
         internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager content)
         {
+            backgroundMusic = content.Load<Song>("backgroundMusic");
+            backgroundTexture = content.Load<Texture2D>("background");
             playerTexture = content.Load<Texture2D>("playersheet");
             tileTexture = content.Load<Texture2D>("tile");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(backgroundMusic);
+            
         }
+
+        internal void UpdateView(float a_elapsedTime)
+        {
+            colorChanger.Update(a_elapsedTime);
+        }
+
 
         public void DrawLevel(GraphicsDevice a_graphicsDevice, Model.Level a_level, Camera a_camera, Vector2 a_playerPosition, Player a_player)
         {
             Vector2 viewportSize = new Vector2(a_graphicsDevice.Viewport.Width, a_graphicsDevice.Viewport.Height);
             float scale = a_camera.getScale();
 
-            a_graphicsDevice.Clear(Microsoft.Xna.Framework.Color.Green);
+            a_graphicsDevice.Clear(Microsoft.Xna.Framework.Color.LightSteelBlue);
 
             //draw all images
             spriteBatch.Begin();
+
+            
+            Vector2 pos = new Vector2(0, 0);
+            
+            
+            spriteBatch.Draw(backgroundTexture, pos, colorChanger.CurrentColor);
 
             //draw level
             for (int x = 0; x < Model.Level.LEVEL_WIDTH; x++)
@@ -125,5 +150,6 @@ namespace WindowsGame1.View
 
         //}
 
+    
     }
 }

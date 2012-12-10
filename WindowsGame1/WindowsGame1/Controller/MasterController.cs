@@ -34,8 +34,8 @@ namespace WindowsGame1
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            graphics.PreferredBackBufferWidth = 640;
-            graphics.PreferredBackBufferHeight = 640;
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
         }
 
         /// <summary>
@@ -93,7 +93,8 @@ namespace WindowsGame1
             // TODO: Add your update logic here
 
             KeyboardState newState = Keyboard.GetState();
-            game.getPlayer().setCurrentState(Player.State.Standing);
+           
+
 
             // Is the Left key down?
             if (newState.IsKeyDown(Keys.Left))
@@ -101,7 +102,10 @@ namespace WindowsGame1
                 // If not down last update, key has just been pressed.
                 if (!oldState.IsKeyDown(Keys.Left))
                 {
-                    game.getPlayer().setCurrentState(Player.State.Walking);
+                    if (game.getPlayer().getCurrentState() != Player.State.Falling)
+                    {
+                        game.getPlayer().setCurrentState(Player.State.Walking);
+                    }
                     game.getPlayer().setCurrentDirection(Player.Direction.Left);
                     game.goLeft();
                 }
@@ -112,7 +116,10 @@ namespace WindowsGame1
                 // If not down last update, key has just been pressed.
                 if (!oldState.IsKeyDown(Keys.Right))
                 {
-                    game.getPlayer().setCurrentState(Player.State.Walking);
+                    if (game.getPlayer().getCurrentState() != Player.State.Falling)
+                    {
+                        game.getPlayer().setCurrentState(Player.State.Walking);
+                    }
                     game.getPlayer().setCurrentDirection(Player.Direction.Right);
                     game.goRight();
                 }
@@ -128,10 +135,10 @@ namespace WindowsGame1
                 }
             }
 
-            
 
 
 
+            gameView.UpdateView((float)gameTime.ElapsedGameTime.TotalSeconds);
             game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
@@ -143,7 +150,7 @@ namespace WindowsGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
 

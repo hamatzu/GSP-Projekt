@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\CollisionDetails.cs" />
+    <Compile Include="Model\ColorChanger.cs" />
     <Compile Include="Model\FloatRectangle.cs" />
     <Compile Include="Model\Tile.cs" />
     <Compile Include="View\GameView.cs" />

@@ -8,7 +8,7 @@ namespace WindowsGame1.Model
 {
     class Level
     {
-        public const int LEVEL_WIDTH = 20;
+        public const int LEVEL_WIDTH = 30;
         public const int LEVEL_HEIGHT = 20;
 
         public const int TILE_WIDTH = 1;

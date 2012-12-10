@@ -59,8 +59,15 @@ namespace WindowsGame1.Model
                 currentFrame.Y = 0;
             }
 
-
-            if (currentState == State.Walking)
+            if(currentState == State.Jumping)
+            {
+                currentFrame.X = 7;
+            }
+            else if (currentState == State.Falling)
+            {
+                currentFrame.X = 8;
+            }
+            else if (currentState == State.Walking)
             {
                 totalElapsed += a_elapsedTime;
                 if (totalElapsed > timePerFrame.TotalSeconds)
@@ -73,7 +80,7 @@ namespace WindowsGame1.Model
                     totalElapsed -= (float)timePerFrame.TotalSeconds;
                 }
             }
-            else if(currentState == State.Jumping)
+            else if(currentState == State.Falling)
             {
                 currentFrame.X = 7;
             }
