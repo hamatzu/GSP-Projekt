@@ -8,8 +8,8 @@ namespace WindowsGame1.Model
 {
     class Level
     {
-        public const int LEVEL_WIDTH = 30;
-        public const int LEVEL_HEIGHT = 20;
+        public const int LEVEL_WIDTH = 50;
+        public const int LEVEL_HEIGHT = 10;
 
         public const int TILE_WIDTH = 1;
         public const int TILE_HEIGHT = 1;
@@ -51,14 +51,21 @@ namespace WindowsGame1.Model
                 {
                     setTileToRandom(rand, x, y);
                 }
-                setBottomAndTopToBlocked(x);
+                setBottomAndTopToBlocked(rand, x);
             }
         }
 
-        private void setBottomAndTopToBlocked(int x)
+        private void setBottomAndTopToBlocked(Random rand, int x)
         {
-            levelTiles[x, 0] = Tile.createBlocked();
+            //levelTiles[x, 0] = Tile.createBlocked();
             levelTiles[x, LEVEL_HEIGHT - 1] = Tile.createBlocked();
+
+            //Add some random blockes
+            if (rand.Next(20) == 0)
+            {
+                levelTiles[x, LEVEL_HEIGHT - 1] = Tile.createTrap();
+            }
+           
         }
 
         private void setTileToRandom(Random rand, int x, int y)
@@ -75,7 +82,7 @@ namespace WindowsGame1.Model
                 }
             }
 
-            setSidesToBlocked(x, y);
+            //setSidesToBlocked(x, y);
         }
 
         private void setSidesToBlocked(int x, int y)

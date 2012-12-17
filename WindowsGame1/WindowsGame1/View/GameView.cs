@@ -97,7 +97,23 @@ namespace WindowsGame1.View
 
         private void DrawTile(float a_x, float a_y, float a_scale, Model.Tile a_tile)
         {
-            int textureIndex = a_tile.isBlocked() ? 0 : 1;
+            int textureIndex = 0;
+            Color tileColor;
+
+            if(a_tile.isBlocked())
+                textureIndex = 1;
+
+            if (a_tile.isTrap())
+            {
+                textureIndex = 1;
+                tileColor = colorChanger.CurrentColor;
+            }
+            else
+            {
+                tileColor = Color.White;
+            }
+
+
 
             //Get the source rectangle (pixels on the texture) for the tile type 
             Rectangle sourceRectangle = new Rectangle(textureTileSize * textureIndex, 0, textureTileSize, textureTileSize);
@@ -105,8 +121,7 @@ namespace WindowsGame1.View
             //Destination rectangle in windows coordinates only scaling
             Rectangle destRect = new Rectangle((int)a_x, (int)a_y, (int)a_scale, (int)a_scale);
 
-
-            spriteBatch.Draw(tileTexture, destRect, sourceRectangle, Color.White);
+            spriteBatch.Draw(tileTexture, destRect, sourceRectangle, tileColor);
         }
 
         //internal void DrawLevel(Model.Game a_game, float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)

@@ -27,11 +27,20 @@ namespace WindowsGame1.Model
             return new Tile(TileType.EMPTY);
         }
 
+        internal static Tile createTrap()
+        {
+            return new Tile(TileType.TRAP);
+        }
+
         private Tile(TileType a_type)
         {
             tileType = a_type;
         }
-        
+
+        internal bool isTrap()
+        {
+            return tileType == TileType.TRAP;
+        }
 
         internal bool isBlocked()
         {

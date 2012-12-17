@@ -181,12 +181,12 @@ namespace WindowsGame1.Model
 
         internal void goLeft()
         {
-            player.setPlayerSpeed(new Vector2(-5.0f, player.getPlayerSpeed().Y));
+            player.setPlayerSpeed(new Vector2(-2.5f, player.getPlayerSpeed().Y));
         }
 
         internal void goRight()
         {
-            player.setPlayerSpeed(new Vector2(5.0f, player.getPlayerSpeed().Y));
+            player.setPlayerSpeed(new Vector2(2.5f, player.getPlayerSpeed().Y));
         }
 
         internal Player getPlayer()

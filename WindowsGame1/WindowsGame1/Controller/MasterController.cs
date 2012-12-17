@@ -159,7 +159,7 @@ namespace WindowsGame1
                               new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height),
                               new Vector2(Model.Level.LEVEL_WIDTH, Model.Level.LEVEL_HEIGHT));
 
-            camera.setZoom(42);
+            camera.setZoom(64);
 
             gameView.DrawLevel(graphics.GraphicsDevice, game.getLevel(), camera, game.getPlayerPosition(), game.getPlayer());
 
