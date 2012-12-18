@@ -18,10 +18,14 @@ namespace WindowsGame1.View
         private int displacementX = 0;
         private int displacementY = 0;
 
+        private int screenHeight;
+        private int screenWidth;
 
-        internal float getScale()
+
+        public Camera(Viewport viewPort)
         {
-            return scale;
+            screenWidth = viewPort.Width;
+            screenHeight = viewPort.Height;
         }
 
         public Vector2 convertToView(float model_X, float model_Y)
@@ -46,6 +50,21 @@ namespace WindowsGame1.View
         internal float getScaleY()
         {
             return scaleY;
+        }
+
+        internal int getScreenWidth()
+        {
+            return screenWidth;
+        }
+
+        internal int getScreenHeight()
+        {
+            return screenHeight;
+        }
+
+        internal float getScale()
+        {
+            return scale;
         }
 
         internal Vector2 getViewPosition(float x, float y, Vector2 a_viewPortSize)

@@ -23,21 +23,19 @@ namespace WindowsGame1.View
         private int textureTileSize = 64;
         private SpriteBatch spriteBatch;
         private Texture2D backgroundTexture;
+        private Camera m_camera;
 
-        public GameView(SpriteBatch batch)
+        public GameView(SpriteBatch batch, Camera camera)
         {
+            m_camera = camera;
             spriteBatch = batch;
         }
 
         internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager content)
         {
-            backgroundMusic = content.Load<Song>("backgroundMusic");
             backgroundTexture = content.Load<Texture2D>("background");
             playerTexture = content.Load<Texture2D>("playersheet");
-            tileTexture = content.Load<Texture2D>("tile");
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(backgroundMusic);
-            
+            tileTexture = content.Load<Texture2D>("tile");    
         }
 
         internal void UpdateView(float a_elapsedTime)
@@ -56,11 +54,10 @@ namespace WindowsGame1.View
             //draw all images
             spriteBatch.Begin();
 
-            
-            Vector2 pos = new Vector2(0, 0);
-            
-            
-            spriteBatch.Draw(backgroundTexture, pos, colorChanger.CurrentColor);
+
+            //Background
+            Rectangle destinationRectangle = new Rectangle(0, 0, m_camera.getScreenWidth(), m_camera.getScreenHeight());
+            spriteBatch.Draw(backgroundTexture, destinationRectangle, colorChanger.CurrentColor);
 
             //draw level
             for (int x = 0; x < Model.Level.LEVEL_WIDTH; x++)

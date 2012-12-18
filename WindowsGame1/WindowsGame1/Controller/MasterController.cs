@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using WindowsGame1.Model;
+using WindowsGame1.Controller;
 
 
 //I am adding some comment code to test GIT!
@@ -23,11 +24,40 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         KeyboardState oldState;
+        MenuGUI m_gui;
+
 
         
         View.Camera camera;
         Model.Game game;
         View.GameView gameView;
+
+
+
+        enum GameState
+        {
+            TitleScreen = 0,
+            MainMenu,
+            GameStarted,
+            GamePaused,
+            GameEnded,
+        }
+
+        GameState currentGameState = GameState.TitleScreen;
+        Texture2D splashTexture;
+        private SoundEffect backgroundMusic;
+        private SoundEffect titleMusic;
+        SoundEffectInstance titleInstance;
+        SoundEffectInstance playingInstance;
+
+
+        private bool play = true;
+        SpriteFont font;
+        bool countingDown = true;
+
+        Color titleColor;
+        private float fadeTime;
+        private float maxFadeTime = 1.5f;
 
         public MasterController()
         {
@@ -48,7 +78,10 @@ namespace WindowsGame1
         {
             // TODO: Add your initialization logic here
 
-            this.Window.Title = "In Search of Disco in the Outback";
+            fadeTime = maxFadeTime;
+            this.Window.Title = "In Search of The Disco";
+            this.IsMouseVisible = true;
+
             base.Initialize();
         }
 
@@ -62,12 +95,26 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            game = new Model.Game();
-            gameView = new View.GameView(spriteBatch);
+            splashTexture = this.Content.Load<Texture2D>("splash");
+            font = Content.Load<SpriteFont>("fontTexture");
 
-            camera = new View.Camera();
+            backgroundMusic = Content.Load<SoundEffect>("backgroundMusic");
+            playingInstance = backgroundMusic.CreateInstance();
+            playingInstance.IsLooped = true;
+
+            titleMusic = Content.Load<SoundEffect>("titleMusic");
+            titleInstance = titleMusic.CreateInstance();
+            titleInstance.IsLooped = true;
+
+            camera = new View.Camera(graphics.GraphicsDevice.Viewport);
+            game = new Model.Game();
+            gameView = new View.GameView(spriteBatch, camera);
+
+            //Load content in MenuGUI
+            m_gui = new MenuGUI(spriteBatch, Content);
 
             gameView.LoadContent(Content);
+
         }
 
         /// <summary>
@@ -86,61 +133,93 @@ namespace WindowsGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            KeyboardState newState = Keyboard.GetState();
+
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            // TODO: Add your update logic here
 
-            KeyboardState newState = Keyboard.GetState();
-           
-
-
-            // Is the Left key down?
-            if (newState.IsKeyDown(Keys.Left))
+            if (currentGameState == GameState.TitleScreen)
             {
-                // If not down last update, key has just been pressed.
-                if (!oldState.IsKeyDown(Keys.Left))
+                if (play == true)
                 {
-                    if (game.getPlayer().getCurrentState() != Player.State.Falling)
+                    titleInstance.Play();
+                    play = false;
+                }
+
+                if (fadeTime < 0)
+                    countingDown = false;
+
+                if (fadeTime >= maxFadeTime)
+                    countingDown = true;
+
+                if (countingDown == true)
+                    fadeTime -= (float)gameTime.ElapsedGameTime.TotalSeconds * 2;
+
+                if (countingDown == false)
+                    fadeTime += (float)gameTime.ElapsedGameTime.TotalSeconds * 2;
+
+                float a = fadeTime / maxFadeTime;
+                titleColor = new Color(a, a, a, a);
+
+                //If any keyed pressed
+                if (newState.GetPressedKeys().Length > 0)
+                {
+                    currentGameState = GameState.MainMenu;
+                }  
+            }
+            else if(currentGameState == GameState.GameStarted)
+            {
+                if (play == true)
+                {
+                    titleInstance.Stop();
+                    playingInstance.Play();
+                    play = false;
+                }
+
+                // Is the Left key down?
+                if (newState.IsKeyDown(Keys.Left))
+                {
+                    // If not down last update, key has just been pressed.
+                    if (!oldState.IsKeyDown(Keys.Left))
                     {
-                        game.getPlayer().setCurrentState(Player.State.Walking);
+                        if (game.getPlayer().getCurrentState() != Player.State.Falling)
+                        {
+                            game.getPlayer().setCurrentState(Player.State.Walking);
+                        }
+                        game.getPlayer().setCurrentDirection(Player.Direction.Left);
+                        game.goLeft();
                     }
-                    game.getPlayer().setCurrentDirection(Player.Direction.Left);
-                    game.goLeft();
                 }
-            }
-            
-            if (newState.IsKeyDown(Keys.Right))
-            {
-                // If not down last update, key has just been pressed.
-                if (!oldState.IsKeyDown(Keys.Right))
+
+                if (newState.IsKeyDown(Keys.Right))
                 {
-                    if (game.getPlayer().getCurrentState() != Player.State.Falling)
+                    // If not down last update, key has just been pressed.
+                    if (!oldState.IsKeyDown(Keys.Right))
                     {
-                        game.getPlayer().setCurrentState(Player.State.Walking);
+                        if (game.getPlayer().getCurrentState() != Player.State.Falling)
+                        {
+                            game.getPlayer().setCurrentState(Player.State.Walking);
+                        }
+                        game.getPlayer().setCurrentDirection(Player.Direction.Right);
+                        game.goRight();
                     }
-                    game.getPlayer().setCurrentDirection(Player.Direction.Right);
-                    game.goRight();
                 }
-            }
 
-            if (newState.IsKeyDown(Keys.Space))
-            {
-                // If not down last update, key has just been pressed.
-                if (!oldState.IsKeyDown(Keys.Space))
+                if (newState.IsKeyDown(Keys.Space))
                 {
-                    game.getPlayer().setCurrentState(Player.State.Jumping);
-                    game.playerJump();
+                    // If not down last update, key has just been pressed.
+                    if (!oldState.IsKeyDown(Keys.Space))
+                    {
+                        game.getPlayer().setCurrentState(Player.State.Jumping);
+                        game.playerJump();
+                    }
                 }
+
+                gameView.UpdateView((float)gameTime.ElapsedGameTime.TotalSeconds);
+                game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
             }
-
-
-
-
-            gameView.UpdateView((float)gameTime.ElapsedGameTime.TotalSeconds);
-            game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
-
             base.Update(gameTime);
         }
 
@@ -152,16 +231,55 @@ namespace WindowsGame1
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
 
-            //update camera
-            camera.centerOn(game.getPlayerPosition(),
-                              new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height),
-                              new Vector2(Model.Level.LEVEL_WIDTH, Model.Level.LEVEL_HEIGHT));
+            if (currentGameState == GameState.TitleScreen)
+            {
+                
+                //Räkna ut position för knappen
+                Rectangle destinationRectangle = new Rectangle(0, 0, camera.getScreenWidth(), camera.getScreenHeight());
 
-            camera.setZoom(64);
+                spriteBatch.Begin();
+                spriteBatch.Draw(splashTexture, destinationRectangle, Color.White);
+                spriteBatch.DrawString(font, "(Press any key)", new Vector2(camera.getScreenWidth() - 270, camera.getScreenHeight() - 40), titleColor);
+                spriteBatch.End();
 
-            gameView.DrawLevel(graphics.GraphicsDevice, game.getLevel(), camera, game.getPlayerPosition(), game.getPlayer());
+            }
+            else if (currentGameState == GameState.MainMenu)
+            {
+                //Räkna ut position för knappen
+                Rectangle destinationRectangle = new Rectangle(0, 0, camera.getScreenWidth(), camera.getScreenHeight());
+
+                spriteBatch.Begin();
+                spriteBatch.Draw(splashTexture, destinationRectangle, Color.White);
+                spriteBatch.End();
+
+                int menuX = camera.getScreenWidth() / 5;
+                int menuY = camera.getScreenHeight() - camera.getScreenHeight() / 4;
+                int buttonSeparation = 45;
+                if (m_gui.DoButton(Mouse.GetState(), "New game", menuX, menuY))
+                {
+                    play = true;
+                    currentGameState = GameState.GameStarted;
+                }
+                if (m_gui.DoButton(Mouse.GetState(), "Exit", menuX, menuY += buttonSeparation))
+                {
+                    this.Exit();
+                }
+
+                m_gui.setOldState(Mouse.GetState());
+
+            }
+            else if (currentGameState == GameState.GameStarted)
+            {
+                //update camera
+                camera.centerOn(game.getPlayerPosition(),
+                                  new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height),
+                                  new Vector2(Model.Level.LEVEL_WIDTH, Model.Level.LEVEL_HEIGHT));
+
+                camera.setZoom(64);
+
+                gameView.DrawLevel(graphics.GraphicsDevice, game.getLevel(), camera, game.getPlayerPosition(), game.getPlayer());
+            }
 
             base.Draw(gameTime);
         }
