@@ -22,11 +22,18 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        View.SmokeSystem smokeSystem = new View.SmokeSystem(new Vector2(5,9));
+        Texture2D smokeTexture;
+
+        View.SmokeSystem smokeSystem;
+        View.SmokeSystem smokeSystem2;
+        private View.Camera m_camera;
+        private View.SmokeSystem smokeSystem3;
+
         public MasterController()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
 
             graphics.PreferredBackBufferWidth = 640;
             graphics.PreferredBackBufferHeight = 640;
@@ -42,6 +49,8 @@ namespace WindowsGame1
         {
             // TODO: Add your initialization logic here
 
+            m_camera = new View.Camera(graphics.GraphicsDevice.Viewport);
+            this.IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -54,8 +63,11 @@ namespace WindowsGame1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
-            smokeSystem.LoadContent(Content);
+            smokeTexture = Content.Load<Texture2D>("smoke");
+
+            smokeSystem = new View.SmokeSystem(new Vector2(4, 4), smokeTexture, 1f);
+            smokeSystem2 = new View.SmokeSystem(new Vector2(6, 8), smokeTexture, 5f);
+            smokeSystem3 = new View.SmokeSystem(new Vector2(2, 9), smokeTexture, 9f);
         }
 
         /// <summary>
@@ -78,6 +90,12 @@ namespace WindowsGame1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
+            //if(Mouse.GetState().LeftButton == ButtonState.Pressed)
+            //{
+            //    Console.WriteLine("Pressed");
+            //    smokeSystem = new View.SmokeSystem(m_camera.convertToModel(Mouse.GetState().X, Mouse.GetState().Y), smokeTexture);
+            //}
+
             // TODO: Add your update logic here
 
             //splitterSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport));
@@ -93,8 +111,13 @@ namespace WindowsGame1
         {
             GraphicsDevice.Clear(Color.White);
 
+            if (smokeSystem == null)
+                return;
             // TODO: Add your drawing code here
-            smokeSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport));
+            smokeSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
+            smokeSystem2.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
+            smokeSystem3.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
+
 
             base.Draw(gameTime);
         }

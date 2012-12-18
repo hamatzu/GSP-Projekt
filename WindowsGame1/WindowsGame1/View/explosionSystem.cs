@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace WindowsGame1.View
 {
-    class SmokeSystem
+    class ExplosionSystem
     {
         private const int INIT_PARTICLES = 1;
         Texture2D smokeTexture;
@@ -26,16 +26,12 @@ namespace WindowsGame1.View
         private float particleSystemTL = 0f;
         private int totalParticles = 0;
         private int maxParticles = 20;
-        private float systemDelay;
 
 
 
 
-        public SmokeSystem(Vector2 a_modelPosition, Texture2D texture, float delay)
+        public ExplosionSystem(Microsoft.Xna.Framework.Vector2 a_modelPosition)
         {
-            systemDelay = delay;
-            smokeTexture = texture;
-            textureOrigin = new Vector2(smokeTexture.Width / 2f, smokeTexture.Height / 2f);
             systemPosition = a_modelPosition;
             releaseRate = 1f / (float)particlesPerSecond;
             
@@ -43,19 +39,12 @@ namespace WindowsGame1.View
 
         internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager a_content)
         {
-            
+            smokeTexture = a_content.Load<Texture2D>("smoke");
+            textureOrigin = new Vector2(smokeTexture.Width / 2f, smokeTexture.Height / 2f);
         }
 
         internal void UpdateAndDraw(float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)
         {
-
-            if (systemDelay > 0)
-            {
-                systemDelay -= a_elapsedTime;
-                return;
-            }
-
-
             particleSystemTL += a_elapsedTime;
             
             releaseTimer += a_elapsedTime;

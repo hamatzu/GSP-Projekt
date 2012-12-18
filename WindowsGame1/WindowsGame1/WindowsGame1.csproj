@@ -112,8 +112,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Controller\MasterController.cs" />
     <Compile Include="View\Camera.cs" />
-    <Compile Include="View\SmokeParticle.cs" />
+    <Compile Include="View\explosionSystem.cs" />
+    <Compile Include="View\Particle.cs" />
     <Compile Include="View\SmokeSystem.cs" />
+    <Compile Include="View\SmokeParticle.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
