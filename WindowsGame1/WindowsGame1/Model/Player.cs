@@ -12,6 +12,8 @@ namespace WindowsGame1.Model
         Vector2 centerBottomPosition = new Vector2(5.0f, 5);
         Vector2 playerSpeed = new Vector2(0, 0f);
 
+        int playerLifes;
+
         private float playerWidth = 1;
         private float playerHeight = 1;
         private Vector2 playerSize = new Vector2(.95f, .95f);
@@ -21,8 +23,13 @@ namespace WindowsGame1.Model
         TimeSpan timePerFrame = TimeSpan.FromSeconds((float)1 / 14);
         Point currentFrame = new Point(0, 0);
         float totalElapsed;
+        bool allowedJump = true;
 
         Direction currentDirection;
+        private Color playerColor;
+        private float maxBlinkingTime = 3f;
+        float blinkingTime = 0f;
+        State blinkingState = State.NotBlinking;
 
         public enum Direction
         {
@@ -36,7 +43,20 @@ namespace WindowsGame1.Model
             Walking,
             Jumping,
             Falling,
-            Stop
+            Stop,
+            Blinking,
+            NotBlinking
+        }
+
+        public Player()
+        {
+            playerLifes = 3;
+        }
+
+        public void createBoundingBox()
+        {
+            Vector2 boundingBox = new Vector2(centerBottomPosition.X - playerSize.X / 2, (centerBottomPosition.Y - playerSize.Y));
+            playerBoundingBox = FloatRectangle.createFromTopLeft(boundingBox, playerSize);
         }
 
         internal void Update(float a_elapsedTime)
@@ -59,7 +79,27 @@ namespace WindowsGame1.Model
                 currentFrame.Y = 0;
             }
 
-            if(currentState == State.Jumping)
+            if (blinkingState == State.Blinking)
+            {
+                if (blinkingTime < maxBlinkingTime)
+                {
+                    if (blinkingTime < maxBlinkingTime)
+                        blinkingTime += a_elapsedTime;
+
+                    playerColor = Color.Red;
+                }
+                else
+                {
+                    blinkingTime = 0;
+                    playerColor = Color.White;
+                    blinkingState = State.NotBlinking;
+                }
+
+            }
+            else
+            { playerColor = Color.White; }
+            
+            if (currentState == State.Jumping)
             {
                 currentFrame.X = 7;
             }
@@ -80,7 +120,7 @@ namespace WindowsGame1.Model
                     totalElapsed -= (float)timePerFrame.TotalSeconds;
                 }
             }
-            else if(currentState == State.Falling)
+            else if (currentState == State.Falling)
             {
                 currentFrame.X = 7;
             }
@@ -89,8 +129,19 @@ namespace WindowsGame1.Model
                 currentFrame.X = 0;
             }
 
-
+            createBoundingBox();
         }
+
+        internal Direction getCurrentDirection()
+        {
+            return currentDirection;
+        }
+
+        internal Color getPlayerColor()
+        {
+            return playerColor;
+        }
+
 
         internal Vector2 getPlayerSpeed()
         {
@@ -129,8 +180,11 @@ namespace WindowsGame1.Model
 
         internal void playerJump()
         {
-            currentState = State.Jumping;
-            playerSpeed.Y = -7f;
+            if (isAllowedJump())
+            {
+                currentState = State.Jumping;
+                playerSpeed.Y = -7f;
+            }
         }
 
         internal void stop()
@@ -162,6 +216,36 @@ namespace WindowsGame1.Model
         internal void setCurrentDirection(Direction direction)
         {
             currentDirection = direction;
+        }
+
+        internal bool isAllowedJump()
+        {
+            return allowedJump;
+        }
+
+        internal void setAllowedJump(bool jump)
+        {
+            allowedJump = jump;
+        }
+
+        internal int getLifes()
+        {
+            return playerLifes;
+        }
+
+        internal void lostLife()
+        {
+            playerLifes = playerLifes - 1;
+        }
+
+        internal State getBlinkingState()
+        {
+            return blinkingState;
+        }
+
+        internal void setBlinkingState(State state)
+        {
+            blinkingState = state;
         }
     }
 }

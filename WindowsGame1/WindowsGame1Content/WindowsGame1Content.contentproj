@@ -70,13 +70,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="backgroundMusic.mp3">
-      <Name>backgroundMusic</Name>
-      <Importer>Mp3Importer</Importer>
-      <Processor>SoundEffectProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="splash.png">
       <Name>splash</Name>
       <Importer>TextureImporter</Importer>
@@ -123,6 +116,59 @@
       <Name>fontTexture</Name>
       <Importer>TextureImporter</Importer>
       <Processor>FontTextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Levels\Level_1.txt">
+      <Name>Level_1</Name>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ghosts.png">
+      <Name>ghosts</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ghost.png">
+      <Name>ghost</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Levels\Level_2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Name>Level_2</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Levels\Level_3.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Name>Level_3</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="enemyHit.mp3">
+      <Name>enemyHit</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="heart.png">
+      <Name>heart</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="discoBackground.mp3">
+      <Name>discoBackground</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

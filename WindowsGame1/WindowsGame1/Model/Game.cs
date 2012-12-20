@@ -3,15 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using WindowsGame1.View;
 
 namespace WindowsGame1.Model
 {
     class Game
     {
         //Spelets beståndsdelar
-        private Player player = new Player();
-        private Level level = new Level();
+        public Player player;
+        public Level level;
+
         private bool hasCollidedWithGround;
+        public bool gameOver = false;
+        SoundEffect enemyHit;
+        SoundEffectInstance enemyHitInstance;
+
+        public Game(Camera a_camera)
+        {
+            player = new Player();
+            level = new Level(player, a_camera);
+            player.createBoundingBox();
+        }
+
+        internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager a_content)
+        {
+            enemyHit = a_content.Load<SoundEffect>("enemyHit");
+            enemyHitInstance = enemyHit.CreateInstance();
+        }
 
         internal void UpdateGame(float a_elapsedTimeSeconds)
         {
@@ -26,9 +45,20 @@ namespace WindowsGame1.Model
                 }
 
                 float timeLeft = a_elapsedTimeSeconds - timeStep * numIterations;
+                UpdateEnemies(timeLeft);
                 UpdatePlayer(timeLeft);
             }
 
+            if (player.getCenterBottomPosition().Y > Model.Level.LEVEL_HEIGHT)
+            {
+                player.lostLife();
+                player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X - 4f, player.getCenterBottomPosition().Y - 2f));
+            }
+
+            if (player.getLifes() == 0)
+            {
+                gameOver = true;
+            }
         }
 
         private void UpdatePlayer(float a_elapsedTimeSeconds)
@@ -55,17 +85,80 @@ namespace WindowsGame1.Model
                 player.setPlayerSpeed(details.speedAfterCollision());
             }
 
+            if(player.getBlinkingState() == Player.State.NotBlinking)
+                checkEnemyCollision();
+
+
             if (!hasCollidedWithGround)
             {
-                Console.WriteLine("In air");
                 player.setCurrentState(Player.State.Falling);
             }
             else
             {
                 player.setCurrentState(Player.State.Standing);
-                Console.WriteLine("On Ground");
             }
         }
+
+        private void UpdateEnemies(float a_elapsedTimeSeconds)
+        {
+            foreach (Enemy aEnemy in level.getLevelEnemies())
+            {
+                //Get the old position
+                Vector2 oldPos = aEnemy.getCenterBottomPosition();
+
+                //Get the new position
+                aEnemy.Update(a_elapsedTimeSeconds);
+
+                Vector2 newPos = aEnemy.getCenterBottomPosition();
+
+                //Collide
+                hasCollidedWithGround = false;
+                Vector2 speed = aEnemy.getEnemySpeed();
+
+                if (didCollide(newPos, aEnemy.getEnemySize()))
+                {
+                    CollisionDetails details = getCollisionDetails(oldPos, newPos, aEnemy.getEnemySize(), speed);
+                    hasCollidedWithGround = details.hasCollidedWithGround();
+
+                    //set the new speed and position after collision
+                    aEnemy.setEnemyPosition(details.positionAfterCollision());
+                    aEnemy.setEnemySpeed(details.speedAfterCollision());
+                }
+                
+            }
+
+        }
+
+        private void checkEnemyCollision()
+        {
+            for (int i = 0; i < level.getLevelEnemies().Count; i++)
+            {
+                Enemy aEnemy = level.getLevelEnemies().ElementAt(i);
+                if (aEnemy.getEnemyBoundingBox().isIntersecting(player.getPlayerBoundingBox()))
+                {
+                    player.lostLife();
+                    
+                    
+                    if (player.getCurrentDirection() == Player.Direction.Right)
+                    {
+                        player.setPlayerSpeed(new Vector2(-5.5f, player.getPlayerSpeed().Y));
+                    }
+
+                    if (player.getCurrentDirection() == Player.Direction.Left)
+                    {
+                        player.setPlayerSpeed(new Vector2(5.5f, player.getPlayerSpeed().Y));
+                    }
+
+                    player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, player.getCenterBottomPosition().Y - 1f));
+
+                    player.setBlinkingState(Player.State.Blinking);
+                    enemyHitInstance.Play();
+                }
+            }
+        }
+
+
+                        
 
         private bool didCollide(Vector2 a_centerBottom, Vector2 a_size)
         {
@@ -74,6 +167,13 @@ namespace WindowsGame1.Model
             {
                 return true;
             }
+
+            if (occupiedArea.Left < 0)
+                return true;
+
+            if (occupiedArea.Right > Model.Level.LEVEL_WIDTH)
+                return true;
+
             return false;
         }
 
@@ -193,5 +293,6 @@ namespace WindowsGame1.Model
         {
             return player;
         }
+
     }
 }

@@ -26,12 +26,9 @@ namespace WindowsGame1
         KeyboardState oldState;
         MenuGUI m_gui;
 
-
-        
         View.Camera camera;
         Model.Game game;
         View.GameView gameView;
-
 
 
         enum GameState
@@ -58,6 +55,9 @@ namespace WindowsGame1
         Color titleColor;
         private float fadeTime;
         private float maxFadeTime = 1.5f;
+        private bool isEditingLevel;
+        private MouseState m_oldState;
+        bool gamePaused = false;
 
         public MasterController()
         {
@@ -98,22 +98,19 @@ namespace WindowsGame1
             splashTexture = this.Content.Load<Texture2D>("splash");
             font = Content.Load<SpriteFont>("fontTexture");
 
-            backgroundMusic = Content.Load<SoundEffect>("backgroundMusic");
+            backgroundMusic = Content.Load<SoundEffect>("discoBackground");
             playingInstance = backgroundMusic.CreateInstance();
             playingInstance.IsLooped = true;
+            playingInstance.Pan = .5f;
 
             titleMusic = Content.Load<SoundEffect>("titleMusic");
             titleInstance = titleMusic.CreateInstance();
             titleInstance.IsLooped = true;
 
-            camera = new View.Camera(graphics.GraphicsDevice.Viewport);
-            game = new Model.Game();
-            gameView = new View.GameView(spriteBatch, camera);
-
             //Load content in MenuGUI
             m_gui = new MenuGUI(spriteBatch, Content);
 
-            gameView.LoadContent(Content);
+            camera = new View.Camera(graphics.GraphicsDevice.Viewport);
 
         }
 
@@ -135,12 +132,21 @@ namespace WindowsGame1
         {
             KeyboardState newState = Keyboard.GetState();
 
+
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
 
-            if (currentGameState == GameState.TitleScreen)
+            if (currentGameState == GameState.MainMenu)
+            {
+                if (play == true)
+                {
+                    titleInstance.Play();
+                    play = false;
+                }
+            }
+            else if (currentGameState == GameState.TitleScreen)
             {
                 if (play == true)
                 {
@@ -171,6 +177,38 @@ namespace WindowsGame1
             }
             else if(currentGameState == GameState.GameStarted)
             {
+                if (game.gameOver == true)
+                {
+                    Console.WriteLine("Game Over");
+                    currentGameState = GameState.MainMenu;
+                }
+
+                if(game.getLevel().isExitLevel())
+                {
+                    play = true;
+                    playingInstance.Stop();
+                    game.getLevel().nextLevel();
+                    gameView.fadeTime = gameView.maxFadeTime;
+                }
+
+                if (isEditingLevel)
+                {
+                    MouseState mouse = Mouse.GetState();
+                    Vector2 mousePos = new Vector2(mouse.X / camera.getScale() + camera.getModelTopLeftPosition().X, mouse.Y / camera.getScale() + camera.getModelTopLeftPosition().Y);
+
+                    Vector2 mouseSize = new Vector2(.10f, .10f);
+                    FloatRectangle mouseRect = FloatRectangle.createFromTopLeft(mousePos, mouseSize);
+
+                    Console.WriteLine(camera.getModelTopLeftPosition().X);
+
+                    if (mouse.LeftButton == ButtonState.Released && m_oldState.LeftButton == ButtonState.Pressed)
+                    {
+                        game.getLevel().ToggleTile(mouseRect);
+                    }
+
+                    m_oldState = mouse;
+                }
+
                 if (play == true)
                 {
                     titleInstance.Stop();
@@ -217,8 +255,39 @@ namespace WindowsGame1
                     }
                 }
 
-                gameView.UpdateView((float)gameTime.ElapsedGameTime.TotalSeconds);
-                game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
+                // Is the F1 key down?
+                if (newState.IsKeyDown(Keys.F1))
+                {
+                    // If not down last update, key has just been pressed.
+                    if (!oldState.IsKeyDown(Keys.F1))
+                    {
+                        Console.WriteLine("editing");
+                        isEditingLevel = true;
+                    }
+                }
+
+                // Is the game paused
+                if (newState.IsKeyDown(Keys.Escape) || newState.IsKeyDown(Keys.P))
+                {
+                    Console.WriteLine("pause");
+                    if (gamePaused == true)
+                    {
+                        playingInstance.Play();
+                        gamePaused = false;
+                    }
+                    else if (gamePaused == false)
+                    {
+                        playingInstance.Stop();
+                        gamePaused = true;
+                    }
+                }
+                Console.WriteLine(gamePaused);
+
+                if (gamePaused == false)
+                {
+                    gameView.UpdateView((float)gameTime.ElapsedGameTime.TotalSeconds);
+                    game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
+                }
             }
             base.Update(gameTime);
         }
@@ -259,6 +328,14 @@ namespace WindowsGame1
                 if (m_gui.DoButton(Mouse.GetState(), "New game", menuX, menuY))
                 {
                     play = true;
+                    Console.WriteLine("New Game");
+
+                    game = new Model.Game(camera);
+                    gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer());
+
+                    game.LoadContent(Content);
+                    gameView.LoadContent(Content);
+
                     currentGameState = GameState.GameStarted;
                 }
                 if (m_gui.DoButton(Mouse.GetState(), "Exit", menuX, menuY += buttonSeparation))
@@ -278,7 +355,7 @@ namespace WindowsGame1
 
                 camera.setZoom(64);
 
-                gameView.DrawLevel(graphics.GraphicsDevice, game.getLevel(), camera, game.getPlayerPosition(), game.getPlayer());
+                gameView.DrawLevel(graphics.GraphicsDevice, game.getPlayerPosition(), game.getLevel().getLevelEnemies());
             }
 
             base.Draw(gameTime);

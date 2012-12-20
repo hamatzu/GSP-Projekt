@@ -21,6 +21,7 @@ namespace WindowsGame1.View
         private int screenHeight;
         private int screenWidth;
 
+        Vector2 modelTopLeftPosition = new Vector2(0,0);
 
         public Camera(Viewport viewPort)
         {
@@ -74,17 +75,21 @@ namespace WindowsGame1.View
             Vector2 modelViewPortSize = new Vector2(a_viewPortSize.X / scale, a_viewPortSize.Y / scale);
 
             //get model top left position
-            Vector2 modelTopLeftPosition = modelCenterPosition - modelViewPortSize / 2.0f;
-
-
+            modelTopLeftPosition = modelCenterPosition - modelViewPortSize / 2.0f;
 
             return (modelPosition - modelTopLeftPosition  )* scale;
+        }
+
+        internal Vector2 getModelTopLeftPosition()
+        {
+            return modelTopLeftPosition;
         }
 
         internal void setZoom(float a_scale)
         {
             scale = a_scale;
         }
+
 
         internal void centerOn(Vector2 a_newCenterPosition, Vector2 a_viewPortSize, Vector2 a_levelSize)
         {
@@ -109,6 +114,13 @@ namespace WindowsGame1.View
             {
                 modelCenterPosition.Y = modelViewPortSize.Y / 2.0f;
             }
+        }
+
+        internal void setGameScale()
+        {
+            //Räkna ut spelets skala
+            scaleX = (float)screenWidth / (float)Model.Level.LEVEL_WIDTH;
+            scaleY = (float)screenHeight / (float)Model.Level.LEVEL_HEIGHT;
         }
     }
 }
