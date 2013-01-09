@@ -33,29 +33,42 @@ namespace WindowsGame1.View
         private Texture2D enemyTexture;
         private Player player;
         private Texture2D heartTexture;
+        private Texture2D crowdTexture;
+        private SpriteFont inGameFont;
+        private Texture2D dummyTexture;
+        private GraphicsDevice m_graphicsDevice;
+        private float backgroundX = 0;
+        private Texture2D enemyTextureHipHopper;
 
-        public GameView(SpriteBatch batch, Camera camera, Level lvl, Player a_player)
+        public GameView(SpriteBatch batch, Camera camera, Level lvl, Player a_player, GraphicsDevice a_graphicsDevice)
         {
-            startNewGame(batch, camera, lvl, a_player);
+            startNewGame(batch, camera, lvl, a_player, a_graphicsDevice);
         }
 
-        public void startNewGame(SpriteBatch batch, Camera camera, Level lvl, Player a_player)
+        public void startNewGame(SpriteBatch batch, Camera camera, Level lvl, Player a_player, GraphicsDevice a_graphicsDevice)
         {
             player = a_player;
             level = lvl;
             fadeTime = maxFadeTime;
             m_camera = camera;
+            m_graphicsDevice = a_graphicsDevice;
             spriteBatch = batch;
         }
 
         internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager content)
         {
             backgroundTexture = content.Load<Texture2D>("background");
+            crowdTexture = content.Load<Texture2D>("backgroundCrowd");
             playerTexture = content.Load<Texture2D>("playersheet");
+            enemyTextureHipHopper = content.Load<Texture2D>("hiphopper");
             enemyTexture = content.Load<Texture2D>("ghost");
             tileTexture = content.Load<Texture2D>("tile");
             fontTexture = content.Load<SpriteFont>("fontTexture");
             heartTexture = content.Load<Texture2D>("heart");
+            inGameFont = content.Load<SpriteFont>("VerdanaInGame");
+
+            dummyTexture = new Texture2D(m_graphicsDevice, 1, 1);
+            dummyTexture.SetData(new Color[] { Color.White });
         }
 
         internal void UpdateView(float a_elapsedTime)
@@ -67,6 +80,26 @@ namespace WindowsGame1.View
             float a = fadeTime / maxFadeTime;
             levelColor = new Color(a, a, a, a);
 
+
+            //Scroll background
+            if (player.getCurrentState() == Player.State.Walking)
+            {
+                if(player.getCurrentDirection() == Player.Direction.Right)
+                { backgroundX -= 1; }
+
+                if(player.getCurrentDirection() == Player.Direction.Left)
+                { backgroundX += 1; }
+
+            }
+
+            //If the background has gone too far
+            if (backgroundX <= -crowdTexture.Width + m_camera.getScreenWidth() ||
+                backgroundX >= crowdTexture.Width + m_camera.getScreenWidth())
+            {
+                //Reset the offset
+                backgroundX = 0;
+            }
+
             colorChanger.Update(a_elapsedTime);
         }
 
@@ -76,15 +109,17 @@ namespace WindowsGame1.View
             Vector2 viewportSize = new Vector2(a_graphicsDevice.Viewport.Width, a_graphicsDevice.Viewport.Height);
             float scale = m_camera.getScale();
 
-            a_graphicsDevice.Clear(Microsoft.Xna.Framework.Color.LightSteelBlue);
-
             //draw all images
             spriteBatch.Begin();
 
-
             //Background
             Rectangle destinationRectangle = new Rectangle(0, 0, m_camera.getScreenWidth(), m_camera.getScreenHeight());
-            spriteBatch.Draw(backgroundTexture, destinationRectangle, colorChanger.CurrentColor);
+
+
+            Rectangle destinationRectangle2 = new Rectangle((int)backgroundX, 0, crowdTexture.Width, crowdTexture.Height);
+
+            spriteBatch.Draw(backgroundTexture, destinationRectangle, Color.White);
+            spriteBatch.Draw(crowdTexture, destinationRectangle2, Color.White);
 
 
 
@@ -109,6 +144,14 @@ namespace WindowsGame1.View
 
             DrawHud();
 
+            if (player.mustBoogie())
+            {
+                player.setCurrentState(Player.State.Dancing);
+                String boogieText = "I feel a sudden urge to... dance!";
+                spriteBatch.Draw(dummyTexture, new Rectangle(((int)playerViewPos.X + playerTexture.Width / 8) - 5, (int)playerViewPos.Y - playerTexture.Height - 5, (int)inGameFont.MeasureString(boogieText).X + 8, (int)inGameFont.MeasureString(boogieText).Y + 8), Color.Black);
+                spriteBatch.DrawString(inGameFont, boogieText, new Vector2(playerViewPos.X + playerTexture.Width / 8, playerViewPos.Y - playerTexture.Height), Color.White);
+            }
+
             spriteBatch.End();
         }
 
@@ -129,7 +172,7 @@ namespace WindowsGame1.View
 
 
             //Get the source rectangle (pixels on the texture) for the tile type 
-            Rectangle sourceRectangle = new Rectangle(27 * textureIndex, 44 * textureRowIndex, 27, 44);
+            Rectangle sourceRectangle = new Rectangle(28 * textureIndex, 45 * textureRowIndex, 28, 44);
             
             //Create rectangle and draw it, note the transformation of the position
             Rectangle destRect = new Rectangle((int)(a_viewBottomCenterPosition.X - a_scale / 2.0f), (int)(a_viewBottomCenterPosition.Y - a_scale), (int)a_scale, (int)a_scale);
@@ -153,17 +196,19 @@ namespace WindowsGame1.View
                 textureIndex = 1;
             }
 
-            if(a_tile.isTrap() && a_tile.isWalkedOn())
+            if (a_tile.isTrap() && a_tile.isWalkedOn())
             {
                 a_tile.setWalkedOn(false);
+            }
+
+            if(a_tile.isTrap())
+            {
                 tileColor = colorChanger.CurrentColor;
             }
             else
             {
                 tileColor = Color.White;
             }
-
-
 
             //Get the source rectangle (pixels on the texture) for the tile type 
             Rectangle sourceRectangle = new Rectangle(textureTileSize * textureIndex, 0, textureTileSize, textureTileSize);
@@ -184,59 +229,30 @@ namespace WindowsGame1.View
                 int textureIndex = aEnemy.getCurrentFrame().X;
                 int textureRowIndex = aEnemy.getCurrentFrame().Y;
 
-                //Get the source rectangle (pixels on the texture) for the tile type 
-                Rectangle sourceRectangle = new Rectangle(60 * textureIndex, 60 * textureRowIndex, 60, 60);
+
 
                 //Create rectangle and draw it, note the transformation of the position
                 Rectangle destRect = new Rectangle((int)(enemyPosition.X - scale / 2.0f), (int)(enemyPosition.Y - scale), (int)scale, (int)scale);
 
-                spriteBatch.Draw(enemyTexture, destRect, sourceRectangle, Color.White);
+                
+                if (aEnemy.getEnemyType() == Enemy.EnemyType.Normal)
+                {
+                    //Get the source rectangle (pixels on the texture) for the tile type 
+                    Rectangle sourceRectangle = new Rectangle(60 * textureIndex, 60 * textureRowIndex, 60, 60);
+
+                    spriteBatch.Draw(enemyTexture, destRect, sourceRectangle, Color.White);
+                }
+
+                if (aEnemy.getEnemyType() == Enemy.EnemyType.HipHopper)
+                {
+                    //Get the source rectangle (pixels on the texture) for the tile type 
+                    Rectangle sourceRectangle = new Rectangle(45 * textureIndex, 44 * textureRowIndex, 45, 44);
+
+                    spriteBatch.Draw(enemyTextureHipHopper, destRect, sourceRectangle, Color.White);
+                }
+
             }
    
         }
-
-
-        //internal void DrawLevel(Model.Game a_game, float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)
-        //{
-        //    int playerWidth = (int)a_game.getPlayer().getPlayerWidth() * (int)a_camera.getScaleX();
-        //    int playerHeight = (int)a_game.getPlayer().getPlayerHeight() * (int)a_camera.getScaleY();
-
-        //    float scale = a_camera.getScale();
-
-        //    Vector2 playerViewTopLeft = a_camera.convertToView(a_game.getPlayer().getCenterBottomPosition().X - (a_game.getPlayer().getPlayerWidth() / 2),
-        //                                                         a_game.getPlayer().getCenterBottomPosition().Y - a_game.getPlayer().getPlayerHeight() +.05f);
-           
-        //    Rectangle playerDestRectangle = new Rectangle((int)playerViewTopLeft.X, (int)playerViewTopLeft.Y, (int)scale, (int)scale);
-
-        //    a_spriteBatch.Begin();
-
-        //    for (int x = 0; x < Model.Level.LEVEL_WIDTH; x++)
-        //    {
-        //        for (int y = 0; y < Model.Level.LEVEL_HEIGHT; y++)
-        //        {
-        //            Vector2 viewPos = a_camera.convertToView(x, y);
-        //            float tileWidth = Model.Level.TILE_WIDTH * a_camera.getScaleX();
-        //            float tileHeight = Model.Level.TILE_HEIGHT * a_camera.getScaleY();
-
-        //            int textureIndex = a_game.getLevel().levelTiles[x, y].isBlocked() ? 0 : 1;
-
-        //            //Get the source rectangle (pixels on the texture) for the tile type 
-        //            Rectangle sourceRectangle = new Rectangle(textureTileSize * textureIndex, 0, textureTileSize, textureTileSize);
-
-        //            //Destination rectangle in windows coordinates only scaling
-        //            Rectangle destRect = new Rectangle((int)viewPos.X, (int)viewPos.Y, (int)tileWidth, (int)tileHeight);
-
-                    
-        //            a_spriteBatch.Draw(tileTexture, destRect, sourceRectangle, Color.White);
-        //        }
-        //    }
-
-        //    a_spriteBatch.Draw(playerTexture, playerDestRectangle, Color.White);
-
-        //    a_spriteBatch.End();
-
-        //}
-
-    
     }
 }

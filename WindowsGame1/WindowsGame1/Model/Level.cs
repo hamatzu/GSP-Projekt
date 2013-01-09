@@ -16,7 +16,7 @@ namespace WindowsGame1.Model
         public const int TILE_WIDTH = 1;
         public const int TILE_HEIGHT = 1;
 
-        internal Tile[,] levelTiles;
+        public Tile[,] levelTiles;
         private List<Enemy> enemyList = new List<Enemy>();
 
         private List<string> allLevels = new List<string>();
@@ -31,7 +31,7 @@ namespace WindowsGame1.Model
         {
             camera = a_camera;
             allLevels.Add("Level 1 - Where is the disco?");
-            allLevels.Add("Level 2 - What was that?");
+            allLevels.Add("Level 2 - Dance baby, dance!");
             allLevels.Add("Level 3 - There can only be one!");
             player = a_player;
 
@@ -95,12 +95,25 @@ namespace WindowsGame1.Model
                     if (aChar.ToString().Equals("X"))
                         levelTiles[x, y] = Tile.createExit();
 
+                    if(aChar.ToString().Equals("|"))
+                        levelTiles[x, y] = Tile.createEnemyStop();
+
                     if (aChar.ToString().Equals("E"))
                     {
                         levelTiles[x, y] = Tile.createEmpty();
                         Vector2 enemyPos = new Vector2(x, y);
                         enemyList.Add(new Enemy(enemyPos, camera.getScaleX()));
                     }
+
+                    if (aChar.ToString().Equals("H"))
+                    {
+                        levelTiles[x, y] = Tile.createEmpty();
+                        Vector2 enemyPos = new Vector2(x, y);
+                        Enemy theEnemy = new Enemy(enemyPos, camera.getScaleX());
+                        theEnemy.setEnemyType(Enemy.EnemyType.HipHopper);
+                        enemyList.Add(theEnemy);
+                    }
+
 
                     levelTiles[x, y].setTilePosition(new Vector2(x, y));
 
@@ -139,9 +152,15 @@ namespace WindowsGame1.Model
                     FloatRectangle rect = FloatRectangle.createFromTopLeft(new Vector2(x, y), tileSize);
                     if (a_rect.isIntersecting(rect))
                     {
+                        if (levelTiles[x, y].isEnemyStop())
+                        {
+                            return true;
+                        }
+
                         if (levelTiles[x, y].isBlocked())
                         {
                             player.setAllowedJump(true);
+                            player.setMustBoogie(false);
                             return true;
                         }
 
@@ -149,6 +168,7 @@ namespace WindowsGame1.Model
                         {
                             levelTiles[x, y].setWalkedOn(true);
                             player.setAllowedJump(false);
+                            player.setMustBoogie(true);
                             return true;
                         }
 
@@ -170,7 +190,15 @@ namespace WindowsGame1.Model
                     FloatRectangle rect = FloatRectangle.createFromTopLeft(new Vector2(x, y), tileSize);
                     if (a_mouse.isIntersecting(rect))
                     {
-                        levelTiles[x, y] = Tile.createBlocked();
+                        if (levelTiles[x, y].isBlocked())
+                        {
+                            levelTiles[x, y] = Tile.createEmpty();
+                        }
+
+                        if(levelTiles[x, y].isEmpty())
+                        {
+                            levelTiles[x, y] = Tile.createBlocked();
+                        }
                         Console.WriteLine(x + "," + y);
                     }
                 }

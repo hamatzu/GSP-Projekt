@@ -180,6 +180,8 @@ namespace WindowsGame1
                 if (game.gameOver == true)
                 {
                     Console.WriteLine("Game Over");
+                    playingInstance.Stop();
+                    titleInstance.Play();
                     currentGameState = GameState.MainMenu;
                 }
 
@@ -199,7 +201,6 @@ namespace WindowsGame1
                     Vector2 mouseSize = new Vector2(.10f, .10f);
                     FloatRectangle mouseRect = FloatRectangle.createFromTopLeft(mousePos, mouseSize);
 
-                    Console.WriteLine(camera.getModelTopLeftPosition().X);
 
                     if (mouse.LeftButton == ButtonState.Released && m_oldState.LeftButton == ButtonState.Pressed)
                     {
@@ -281,7 +282,6 @@ namespace WindowsGame1
                         gamePaused = true;
                     }
                 }
-                Console.WriteLine(gamePaused);
 
                 if (gamePaused == false)
                 {
@@ -331,7 +331,7 @@ namespace WindowsGame1
                     Console.WriteLine("New Game");
 
                     game = new Model.Game(camera);
-                    gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer());
+                    gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer(), graphics.GraphicsDevice);
 
                     game.LoadContent(Content);
                     gameView.LoadContent(Content);

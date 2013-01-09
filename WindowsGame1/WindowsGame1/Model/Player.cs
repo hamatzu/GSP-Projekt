@@ -30,6 +30,7 @@ namespace WindowsGame1.Model
         private float maxBlinkingTime = 3f;
         float blinkingTime = 0f;
         State blinkingState = State.NotBlinking;
+        private bool mustDance = false;
 
         public enum Direction
         {
@@ -45,7 +46,8 @@ namespace WindowsGame1.Model
             Falling,
             Stop,
             Blinking,
-            NotBlinking
+            NotBlinking,
+            Dancing
         }
 
         public Player()
@@ -68,7 +70,7 @@ namespace WindowsGame1.Model
 
             //integrate speed
             playerSpeed = playerSpeed + a_elapsedTime * gravityAcceleration;
-           
+
 
             if (currentDirection == Direction.Left)
             {
@@ -98,7 +100,7 @@ namespace WindowsGame1.Model
             }
             else
             { playerColor = Color.White; }
-            
+
             if (currentState == State.Jumping)
             {
                 currentFrame.X = 7;
@@ -120,9 +122,22 @@ namespace WindowsGame1.Model
                     totalElapsed -= (float)timePerFrame.TotalSeconds;
                 }
             }
-            else if (currentState == State.Falling)
+            else if (currentState == State.Dancing)
             {
-                currentFrame.X = 7;
+                totalElapsed += a_elapsedTime / 10;
+                if (totalElapsed > timePerFrame.TotalSeconds)
+                {
+                    currentFrame.X = 0;
+                    if (currentDirection == Direction.Left)
+                    {
+                        currentDirection = Direction.Right;
+                    }
+                    else
+                    {
+                        currentDirection = Direction.Left;
+                    }
+                    totalElapsed -= (float)timePerFrame.TotalSeconds;
+                }
             }
             else
             {
@@ -246,6 +261,16 @@ namespace WindowsGame1.Model
         internal void setBlinkingState(State state)
         {
             blinkingState = state;
+        }
+
+        internal bool mustBoogie()
+        {
+            return mustDance;
+        }
+
+        internal void setMustBoogie(bool dance)
+        {
+            mustDance = dance;
         }
     }
 }

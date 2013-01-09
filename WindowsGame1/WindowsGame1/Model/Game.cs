@@ -157,9 +157,6 @@ namespace WindowsGame1.Model
             }
         }
 
-
-                        
-
         private bool didCollide(Vector2 a_centerBottom, Vector2 a_size)
         {
             FloatRectangle occupiedArea = FloatRectangle.createFromCenterBottom(a_centerBottom, a_size);
@@ -233,17 +230,8 @@ namespace WindowsGame1.Model
 
         private static Vector2 doSetSpeedOnVerticalCollision(Vector2 a_velocity)
         {
-            //did we collide with ground?
-            if (a_velocity.Y > 0)
-            {
-                a_velocity.Y = 0; //no bounce
-            }
-            else
-            {
-                //collide with roof
-                a_velocity.Y *= -1.0f;
-            }
-
+            a_velocity.Y = 0; //no bounce
+            
             a_velocity.X *= 0.10f;
 
             return a_velocity;

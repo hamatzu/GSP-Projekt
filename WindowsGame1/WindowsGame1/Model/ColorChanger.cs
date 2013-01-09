@@ -12,6 +12,7 @@ namespace WindowsGame1.Model
         private float elapsed;
         private int nextColorIndex = 1;
         private readonly float timeBetweenColors;
+        Random randomColor = new Random();
         /// <summary>
         /// Gets the current color of the object
         /// </summary>
@@ -53,7 +54,7 @@ namespace WindowsGame1.Model
             {
                 //If we've passed the last color, start at the beginning
                 if (++nextColorIndex >= colors.Length)
-                    nextColorIndex = 0;
+                    nextColorIndex = randomColor.Next(0, colors.Length);
                 //Reset the time so we can start over again
                 elapsed = 0f;
             }

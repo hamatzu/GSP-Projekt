@@ -23,6 +23,14 @@ namespace WindowsGame1.Model
         float oldDistance;
         Direction currentDirection;
         FloatRectangle enemyBoundingBox;
+        private EnemyType enemyType;
+
+
+        public enum EnemyType
+        {
+            Normal,
+            HipHopper
+        }
 
         public enum Direction
         {
@@ -53,46 +61,60 @@ namespace WindowsGame1.Model
 
            Vector2 gravityAcceleration = new Vector2(0.0f, 9.82f);
 
-
-            if (distance <= 0)
+            if (enemyType == EnemyType.HipHopper)
             {
-                currentDirection = Direction.Right;
-            }
-            else if (distance >= oldDistance)
-            {
-                currentDirection = Direction.Left;
-            }
-
-            if (currentDirection == Direction.Right)
-            {
-                distance += 1f;
-                setEnemySpeed(new Vector2(2.5f, getEnemySpeed().Y));
-            }
-            else
-            {
-                distance -= 1f;
-                setEnemySpeed(new Vector2(-2.5f, getEnemySpeed().Y));
-            }
-
-
-            totalElapsed += a_elapsedTime;
-            if (totalElapsed > timePerFrame.TotalSeconds)
-            {
-                currentFrame.X++;
-                if (currentFrame.X >= 12)
+                totalElapsed += a_elapsedTime;
+                if (totalElapsed > timePerFrame.TotalSeconds)
                 {
-                    currentFrame.X = 0;
+                    currentFrame.X++;
+                    if (currentFrame.X >= 4)
+                    {
+                        currentFrame.X = 0;
+                    }
+                    totalElapsed -= (float)timePerFrame.TotalSeconds;
                 }
-                totalElapsed -= (float)timePerFrame.TotalSeconds;
             }
 
+            if (enemyType == EnemyType.Normal)
+            {
+                if (distance <= 0)
+                {
+                    currentDirection = Direction.Right;
+                }
+                else if (distance >= oldDistance)
+                {
+                    currentDirection = Direction.Left;
+                }
+
+                if (currentDirection == Direction.Right)
+                {
+                    distance += 1f;
+                    setEnemySpeed(new Vector2(2.5f, getEnemySpeed().Y));
+                }
+                else
+                {
+                    distance -= 1f;
+                    setEnemySpeed(new Vector2(-2.5f, getEnemySpeed().Y));
+                }
+
+                totalElapsed += a_elapsedTime;
+                if (totalElapsed > timePerFrame.TotalSeconds)
+                {
+                    currentFrame.X++;
+                    if (currentFrame.X >= 12)
+                    {
+                        currentFrame.X = 0;
+                    }
+                    totalElapsed -= (float)timePerFrame.TotalSeconds;
+                }
+
+            }
 
             //integrate position
             centerBottomPosition = centerBottomPosition + enemySpeed * a_elapsedTime + gravityAcceleration * a_elapsedTime * a_elapsedTime;
 
             //integrate speed
             enemySpeed = enemySpeed + a_elapsedTime * gravityAcceleration;
-
             
             createBoundingBox();
         }
@@ -125,6 +147,16 @@ namespace WindowsGame1.Model
         internal void setEnemySpeed(Vector2 a_speed)
         {
             enemySpeed = a_speed;
+        }
+
+        internal void setEnemyType(EnemyType type)
+        {
+            enemyType = type;
+        }
+
+        internal EnemyType getEnemyType()
+        {
+            return enemyType;
         }
     }
 }
