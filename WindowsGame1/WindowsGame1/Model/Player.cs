@@ -31,6 +31,7 @@ namespace WindowsGame1.Model
         float blinkingTime = 0f;
         State blinkingState = State.NotBlinking;
         private bool mustDance = false;
+        private bool lostALife = false;
 
         public enum Direction
         {
@@ -71,6 +72,7 @@ namespace WindowsGame1.Model
             //integrate speed
             playerSpeed = playerSpeed + a_elapsedTime * gravityAcceleration;
 
+            mustDance = false;
 
             if (currentDirection == Direction.Left)
             {
@@ -103,6 +105,7 @@ namespace WindowsGame1.Model
 
             if (currentState == State.Jumping)
             {
+                mustDance = false;
                 currentFrame.X = 7;
             }
             else if (currentState == State.Falling)
@@ -251,6 +254,7 @@ namespace WindowsGame1.Model
         internal void lostLife()
         {
             playerLifes = playerLifes - 1;
+            lostALife = true;
         }
 
         internal State getBlinkingState()
@@ -271,6 +275,21 @@ namespace WindowsGame1.Model
         internal void setMustBoogie(bool dance)
         {
             mustDance = dance;
+        }
+
+        internal bool didLostLife()
+        {
+            return lostALife;
+        }
+
+        internal void setLostLife(bool life)
+        {
+            lostALife = life;
+        }
+
+        internal void lifeUp()
+        {
+            playerLifes++;
         }
     }
 }

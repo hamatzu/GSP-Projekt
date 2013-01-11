@@ -66,5 +66,19 @@ namespace WindowsGame1.Model
 
             return true;
         }
+
+        internal bool isIntersectingTop(FloatRectangle other)
+        {
+            if (Right < other.Left)
+                return false;
+            if (Bottom < other.Top)
+                return false;
+            if (Left > other.Right)
+                return false;
+            if (Top > other.Bottom)
+                return false;
+
+            return true;
+        }
     }
 }

@@ -18,9 +18,16 @@ namespace WindowsGame1.Model
         public bool gameOver = false;
         SoundEffect enemyHit;
         SoundEffectInstance enemyHitInstance;
+        SoundEffect enemyDead;
+        SoundEffectInstance enemyDeadInstance;
+        private Camera m_camera;
+        private SoundEffect lifeUp;
+        private SoundEffectInstance lifeInstance;
+        private bool blockFound = false;
 
         public Game(Camera a_camera)
         {
+            m_camera = a_camera;
             player = new Player();
             level = new Level(player, a_camera);
             player.createBoundingBox();
@@ -30,6 +37,12 @@ namespace WindowsGame1.Model
         {
             enemyHit = a_content.Load<SoundEffect>("enemyHit");
             enemyHitInstance = enemyHit.CreateInstance();
+
+            enemyDead = a_content.Load<SoundEffect>("pop");
+            enemyDeadInstance = enemyDead.CreateInstance();
+
+            lifeUp = a_content.Load<SoundEffect>("heartPop");
+            lifeInstance = lifeUp.CreateInstance();
         }
 
         internal void UpdateGame(float a_elapsedTimeSeconds)
@@ -49,15 +62,47 @@ namespace WindowsGame1.Model
                 UpdatePlayer(timeLeft);
             }
 
-            if (player.getCenterBottomPosition().Y > Model.Level.LEVEL_HEIGHT)
-            {
-                player.lostLife();
-                player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X - 4f, player.getCenterBottomPosition().Y - 2f));
-            }
+            //Check if player intersect with a gem
+            checkGemCollision();
 
+
+            //Game over
             if (player.getLifes() == 0)
             {
                 gameOver = true;
+            }
+
+            //If player goes outside bottom of map
+            if (player.getCenterBottomPosition().Y > Model.Level.LEVEL_HEIGHT)
+            {
+
+                blockFound = false;
+                player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, 13));
+
+                int playerX = (int)player.getCenterBottomPosition().X;
+                int playerY = 14;
+
+                //Check for closest tile that is blocked for respawn
+                for (int x = playerX; x > 0; x--)
+                {
+                    Console.WriteLine(x);
+                    for (int y = playerY; y > 0; y--)
+                    {
+                        Console.WriteLine(y);
+                        if (level.levelTiles[x, y].isBlocked())
+                        {
+                            player.setPlayerPosition(new Vector2(x + .6f, y - .3f));
+                            blockFound = true;
+                            break;
+                        }
+                    }
+
+                    if (blockFound)
+                        break;
+                }
+                
+                player.setBlinkingState(Player.State.Blinking);
+                player.lostLife();
             }
         }
 
@@ -68,7 +113,6 @@ namespace WindowsGame1.Model
 
             //Get the new position
             player.Update(a_elapsedTimeSeconds);
-
             Vector2 newPos = player.getCenterBottomPosition();
 
             //Collide
@@ -85,10 +129,13 @@ namespace WindowsGame1.Model
                 player.setPlayerSpeed(details.speedAfterCollision());
             }
 
-            if(player.getBlinkingState() == Player.State.NotBlinking)
+            //If player is not hurt i.e not in blinking state check collision with enemy
+            if (player.getBlinkingState() == Player.State.NotBlinking)
+            {
                 checkEnemyCollision();
+            }
 
-
+            //Set correct player state
             if (!hasCollidedWithGround)
             {
                 player.setCurrentState(Player.State.Falling);
@@ -97,6 +144,7 @@ namespace WindowsGame1.Model
             {
                 player.setCurrentState(Player.State.Standing);
             }
+            
         }
 
         private void UpdateEnemies(float a_elapsedTimeSeconds)
@@ -129,16 +177,28 @@ namespace WindowsGame1.Model
 
         }
 
+
         private void checkEnemyCollision()
         {
+            // Loop through level enemies to check collision
             for (int i = 0; i < level.getLevelEnemies().Count; i++)
             {
                 Enemy aEnemy = level.getLevelEnemies().ElementAt(i);
-                if (aEnemy.getEnemyBoundingBox().isIntersecting(player.getPlayerBoundingBox()))
+
+                // Kill enemy if jumping on top of it
+                if (aEnemy.getEnemyTopBoundingBox().isIntersectingTop(player.getPlayerBoundingBox()) && aEnemy.getEnemyType() == Enemy.EnemyType.Rasta)
                 {
+                    enemyDeadInstance.Play();
+                    player.setPlayerSpeed(new Vector2(player.getPlayerSpeed().X, -5f));
+                    level.getLevelEnemies().RemoveAt(i);
+                }
+                //Check collision between enemy and player
+                else if (aEnemy.getEnemyBoundingBox().isIntersecting(player.getPlayerBoundingBox()))
+                {
+                    //Lose life
                     player.lostLife();
-                    
-                    
+
+                    //Animate player when hurt
                     if (player.getCurrentDirection() == Player.Direction.Right)
                     {
                         player.setPlayerSpeed(new Vector2(-5.5f, player.getPlayerSpeed().Y));
@@ -149,13 +209,30 @@ namespace WindowsGame1.Model
                         player.setPlayerSpeed(new Vector2(5.5f, player.getPlayerSpeed().Y));
                     }
 
+                    //Set cooldown
                     player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, player.getCenterBottomPosition().Y - 1f));
-
                     player.setBlinkingState(Player.State.Blinking);
                     enemyHitInstance.Play();
                 }
+
+                
             }
         }
+
+        private void checkGemCollision()
+        {
+            for (int i = 0; i < level.getLevelGems().Count; i++)
+            {
+                Gem aGem = level.getLevelGems().ElementAt(i);
+                if (aGem.getGemBoundingBox().isIntersecting(player.getPlayerBoundingBox()) && aGem.getGemType() == Gem.GemType.Life)
+                {
+                    lifeInstance.Play();
+                    player.lifeUp();
+                    level.getLevelGems().RemoveAt(i);
+                }
+            }
+        }
+
 
         private bool didCollide(Vector2 a_centerBottom, Vector2 a_size)
         {

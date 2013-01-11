@@ -18,6 +18,7 @@ namespace WindowsGame1.Model
 
         public Tile[,] levelTiles;
         private List<Enemy> enemyList = new List<Enemy>();
+        private List<Gem> gemList = new List<Gem>();
 
         private List<string> allLevels = new List<string>();
         string currentLevelName;
@@ -43,6 +44,7 @@ namespace WindowsGame1.Model
         {
             exitLevel = false;
             currentLevelNr++;
+            enemyList.Clear();
             LoadTiles("Content/Levels/level_" + currentLevelNr + ".txt");
         }
 
@@ -98,11 +100,22 @@ namespace WindowsGame1.Model
                     if(aChar.ToString().Equals("|"))
                         levelTiles[x, y] = Tile.createEnemyStop();
 
-                    if (aChar.ToString().Equals("E"))
+                    if (aChar.ToString().Equals("L"))
+                    {
+                        levelTiles[x, y] = Tile.createEmpty();
+                        Vector2 gemPos = new Vector2(x, y);
+                        Gem aGem = new Gem(gemPos);
+                        aGem.setGemType(Gem.GemType.Life);
+                        gemList.Add(aGem);
+                    }
+
+                    if (aChar.ToString().Equals("R"))
                     {
                         levelTiles[x, y] = Tile.createEmpty();
                         Vector2 enemyPos = new Vector2(x, y);
-                        enemyList.Add(new Enemy(enemyPos, camera.getScaleX()));
+                        Enemy theEnemy = new Enemy(enemyPos, camera.getScaleX());
+                        theEnemy.setEnemyType(Enemy.EnemyType.Rasta);
+                        enemyList.Add(theEnemy);
                     }
 
                     if (aChar.ToString().Equals("H"))
@@ -114,13 +127,22 @@ namespace WindowsGame1.Model
                         enemyList.Add(theEnemy);
                     }
 
+                    if (aChar.ToString().Equals("G"))
+                    {
+                        levelTiles[x, y] = Tile.createEmpty();
+                        Vector2 enemyPos = new Vector2(x, y);
+                        Enemy theEnemy = new Enemy(enemyPos, camera.getScaleX());
+                        theEnemy.setEnemyType(Enemy.EnemyType.Ghost);
+                        enemyList.Add(theEnemy);
+                    }
+
 
                     levelTiles[x, y].setTilePosition(new Vector2(x, y));
 
-                    Console.Write(aChar);
+                    //Console.Write(aChar);
                     x++;
                 }
-                Console.Write("\n");
+                //Console.Write("\n");
                 y++;
             }  
 
@@ -152,6 +174,7 @@ namespace WindowsGame1.Model
                     FloatRectangle rect = FloatRectangle.createFromTopLeft(new Vector2(x, y), tileSize);
                     if (a_rect.isIntersecting(rect))
                     {
+
                         if (levelTiles[x, y].isEnemyStop())
                         {
                             return true;
@@ -203,6 +226,16 @@ namespace WindowsGame1.Model
                     }
                 }
             }
+        }
+
+        internal List<Gem> getLevelGems()
+        {
+            return gemList;
+        }
+
+        internal int getCurrentLevel()
+        {
+            return currentLevelNr;
         }
     }
 }

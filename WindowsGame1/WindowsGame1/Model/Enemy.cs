@@ -24,12 +24,15 @@ namespace WindowsGame1.Model
         Direction currentDirection;
         FloatRectangle enemyBoundingBox;
         private EnemyType enemyType;
+        private FloatRectangle enemyTopBoundingBox;
 
 
         public enum EnemyType
         {
-            Normal,
-            HipHopper
+            Ghost,
+            HipHopper,
+            Rasta,
+            HardRocker
         }
 
         public enum Direction
@@ -40,7 +43,7 @@ namespace WindowsGame1.Model
 
         public Enemy(Vector2 enemyBottomPosition, float a_scale)
         {
-            distance = 10f * a_scale;
+            distance = 20f * a_scale;
             oldDistance = distance;
             centerBottomPosition = enemyBottomPosition;
         }
@@ -49,6 +52,12 @@ namespace WindowsGame1.Model
         {
             Vector2 boundingBox = new Vector2(centerBottomPosition.X - enemySize.X / 2, (centerBottomPosition.Y - enemySize.Y));
             enemyBoundingBox = FloatRectangle.createFromTopLeft(boundingBox, enemySize);
+        }
+        public void createTopBoundingBox()
+        {
+            Vector2 boundingBox = new Vector2((centerBottomPosition.X - enemySize.X / 2) + .1f, (centerBottomPosition.Y - enemySize.Y - .1f));
+            Vector2 topSize = new Vector2(.8f, .1f);
+            enemyTopBoundingBox = FloatRectangle.createFromTopLeft(boundingBox, topSize);
         }
 
         public FloatRectangle getEnemyBoundingBox()
@@ -75,7 +84,7 @@ namespace WindowsGame1.Model
                 }
             }
 
-            if (enemyType == EnemyType.Normal)
+            if (enemyType == EnemyType.Rasta)
             {
                 if (distance <= 0)
                 {
@@ -84,24 +93,26 @@ namespace WindowsGame1.Model
                 else if (distance >= oldDistance)
                 {
                     currentDirection = Direction.Left;
+                    currentFrame.Y = 1;
                 }
 
                 if (currentDirection == Direction.Right)
                 {
                     distance += 1f;
-                    setEnemySpeed(new Vector2(2.5f, getEnemySpeed().Y));
+                    setEnemySpeed(new Vector2(1.5f, getEnemySpeed().Y));
+                    currentFrame.Y = 0;
                 }
                 else
                 {
                     distance -= 1f;
-                    setEnemySpeed(new Vector2(-2.5f, getEnemySpeed().Y));
+                    setEnemySpeed(new Vector2(-1.5f, getEnemySpeed().Y));
                 }
 
                 totalElapsed += a_elapsedTime;
                 if (totalElapsed > timePerFrame.TotalSeconds)
                 {
                     currentFrame.X++;
-                    if (currentFrame.X >= 12)
+                    if (currentFrame.X >= 2)
                     {
                         currentFrame.X = 0;
                     }
@@ -117,6 +128,7 @@ namespace WindowsGame1.Model
             enemySpeed = enemySpeed + a_elapsedTime * gravityAcceleration;
             
             createBoundingBox();
+            createTopBoundingBox();
         }
 
         internal Vector2 getCenterBottomPosition()
@@ -157,6 +169,11 @@ namespace WindowsGame1.Model
         internal EnemyType getEnemyType()
         {
             return enemyType;
+        }
+
+        internal FloatRectangle getEnemyTopBoundingBox()
+        {
+            return enemyTopBoundingBox;
         }
     }
 }

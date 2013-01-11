@@ -13,7 +13,6 @@ namespace WindowsGame1.View
     {
         Texture2D playerTexture;
         Texture2D tileTexture;
-        Song backgroundMusic;
         ColorChanger colorChanger = new ColorChanger(
                                         .4f, //Time between color changes
                                         true, //Is the color changer active?
@@ -30,7 +29,6 @@ namespace WindowsGame1.View
         public float maxFadeTime = 3f;
         private Color levelColor;
         private Level level;
-        private Texture2D enemyTexture;
         private Player player;
         private Texture2D heartTexture;
         private Texture2D crowdTexture;
@@ -39,6 +37,10 @@ namespace WindowsGame1.View
         private GraphicsDevice m_graphicsDevice;
         private float backgroundX = 0;
         private Texture2D enemyTextureHipHopper;
+        private Texture2D enemyTextureGhost;
+        private Texture2D enemyTextureRasta;
+        View.SmokeSystem smokeSystem;
+        private Texture2D gemHeartTexture;
 
         public GameView(SpriteBatch batch, Camera camera, Level lvl, Player a_player, GraphicsDevice a_graphicsDevice)
         {
@@ -60,11 +62,16 @@ namespace WindowsGame1.View
             backgroundTexture = content.Load<Texture2D>("background");
             crowdTexture = content.Load<Texture2D>("backgroundCrowd");
             playerTexture = content.Load<Texture2D>("playersheet");
+
             enemyTextureHipHopper = content.Load<Texture2D>("hiphopper");
-            enemyTexture = content.Load<Texture2D>("ghost");
+            enemyTextureRasta = content.Load<Texture2D>("rastasheet");
+            enemyTextureGhost = content.Load<Texture2D>("ghost");
+
             tileTexture = content.Load<Texture2D>("tile");
             fontTexture = content.Load<SpriteFont>("fontTexture");
             heartTexture = content.Load<Texture2D>("heart");
+            gemHeartTexture = content.Load<Texture2D>("gemHeart");
+
             inGameFont = content.Load<SpriteFont>("VerdanaInGame");
 
             dummyTexture = new Texture2D(m_graphicsDevice, 1, 1);
@@ -104,7 +111,7 @@ namespace WindowsGame1.View
         }
 
 
-        public void DrawLevel(GraphicsDevice a_graphicsDevice, Vector2 a_playerPosition, List<Enemy> enemies)
+        public void DrawLevel(GraphicsDevice a_graphicsDevice, Vector2 a_playerPosition, List<Enemy> enemies, List<Gem> gems, float a_elapsedTime, Microsoft.Xna.Framework.Content.ContentManager a_content)
         {
             Vector2 viewportSize = new Vector2(a_graphicsDevice.Viewport.Width, a_graphicsDevice.Viewport.Height);
             float scale = m_camera.getScale();
@@ -121,6 +128,9 @@ namespace WindowsGame1.View
             spriteBatch.Draw(backgroundTexture, destinationRectangle, Color.White);
             spriteBatch.Draw(crowdTexture, destinationRectangle2, Color.White);
 
+            Vector2 topLeft = m_camera.getModelTopLeftPosition();
+            Vector2 topRight = new Vector2(topLeft.X + 13, 0);
+            topLeft.Y = 0;
 
 
             //draw level
@@ -129,7 +139,14 @@ namespace WindowsGame1.View
                 for (int y = 0; y < Model.Level.LEVEL_HEIGHT; y++)
                 {
                     Vector2 viewPos = m_camera.getViewPosition(x, y, viewportSize);
-                    DrawTile(viewPos.X, viewPos.Y, scale, level.levelTiles[x, y]);
+                    Vector2 topRightPos = m_camera.getViewPosition(topRight.X, topRight.Y, viewportSize);
+                    Vector2 topLeftPos = m_camera.getViewPosition(topLeft.X, topLeft.Y, viewportSize);
+
+                    if (viewPos.X >= topLeftPos.X - 64 && viewPos.X <= topRightPos.X)
+                    {
+                        //TODO: Check if tile is on screen
+                        DrawTile(viewPos.X, viewPos.Y, scale, level.levelTiles[x, y]);
+                    }
                 }
             }
 
@@ -137,17 +154,28 @@ namespace WindowsGame1.View
             Vector2 playerViewPos = m_camera.getViewPosition(a_playerPosition.X, a_playerPosition.Y, viewportSize);
             DrawPlayerAt(playerViewPos, scale, player);
 
-            DrawEnemies(enemies, viewportSize);
+            
+            DrawEnemies(enemies, viewportSize, a_elapsedTime, a_content);
+
+            DrawGems(gems, viewportSize, a_elapsedTime, a_content);
 
             if(fadeTime > 0)
                 spriteBatch.DrawString(fontTexture, level.getLevelName(), new Vector2(m_camera.getScreenWidth() / 2 - (int)fontTexture.MeasureString(level.getLevelName()).X / 2, m_camera.getScreenHeight() / 2), levelColor);
 
             DrawHud();
 
+
             if (player.mustBoogie())
             {
                 player.setCurrentState(Player.State.Dancing);
                 String boogieText = "I feel a sudden urge to... dance!";
+                spriteBatch.Draw(dummyTexture, new Rectangle(((int)playerViewPos.X + playerTexture.Width / 8) - 5, (int)playerViewPos.Y - playerTexture.Height - 5, (int)inGameFont.MeasureString(boogieText).X + 8, (int)inGameFont.MeasureString(boogieText).Y + 8), Color.Black);
+                spriteBatch.DrawString(inGameFont, boogieText, new Vector2(playerViewPos.X + playerTexture.Width / 8, playerViewPos.Y - playerTexture.Height), Color.White);
+            }
+
+            if (player.getBlinkingState() == Player.State.Blinking)
+            {
+                String boogieText = "Ouch!";
                 spriteBatch.Draw(dummyTexture, new Rectangle(((int)playerViewPos.X + playerTexture.Width / 8) - 5, (int)playerViewPos.Y - playerTexture.Height - 5, (int)inGameFont.MeasureString(boogieText).X + 8, (int)inGameFont.MeasureString(boogieText).Y + 8), Color.Black);
                 spriteBatch.DrawString(inGameFont, boogieText, new Vector2(playerViewPos.X + playerTexture.Width / 8, playerViewPos.Y - playerTexture.Height), Color.White);
             }
@@ -219,7 +247,7 @@ namespace WindowsGame1.View
             spriteBatch.Draw(tileTexture, destRect, sourceRectangle, tileColor);
         }
 
-        private void DrawEnemies(List<Enemy> enemies, Vector2 viewportSize)
+        private void DrawEnemies(List<Enemy> enemies, Vector2 viewportSize, float a_elapsedTime, Microsoft.Xna.Framework.Content.ContentManager a_content)
         {
             float scale = m_camera.getScale();
 
@@ -234,13 +262,26 @@ namespace WindowsGame1.View
                 //Create rectangle and draw it, note the transformation of the position
                 Rectangle destRect = new Rectangle((int)(enemyPosition.X - scale / 2.0f), (int)(enemyPosition.Y - scale), (int)scale, (int)scale);
 
-                
-                if (aEnemy.getEnemyType() == Enemy.EnemyType.Normal)
+
+                if (aEnemy.getEnemyType() == Enemy.EnemyType.Rasta)
+                {
+                    //Get the source rectangle (pixels on the texture) for the tile type 
+                    Rectangle sourceRectangle = new Rectangle(40 * textureIndex, 50 * textureRowIndex, 40, 50);
+
+                    //Console.WriteLine(enemyPosition);
+                    //smokeSystem = new View.SmokeSystem(enemyPosition);
+                    //smokeSystem.LoadContent(a_content);
+                    //smokeSystem.UpdateAndDraw(a_elapsedTime, spriteBatch, m_camera);
+
+                    spriteBatch.Draw(enemyTextureRasta, destRect, sourceRectangle, Color.White);
+                }
+
+                if (aEnemy.getEnemyType() == Enemy.EnemyType.Ghost)
                 {
                     //Get the source rectangle (pixels on the texture) for the tile type 
                     Rectangle sourceRectangle = new Rectangle(60 * textureIndex, 60 * textureRowIndex, 60, 60);
 
-                    spriteBatch.Draw(enemyTexture, destRect, sourceRectangle, Color.White);
+                    spriteBatch.Draw(enemyTextureGhost, destRect, sourceRectangle, Color.White);
                 }
 
                 if (aEnemy.getEnemyType() == Enemy.EnemyType.HipHopper)
@@ -253,6 +294,28 @@ namespace WindowsGame1.View
 
             }
    
+        }
+
+        private void DrawGems(List<Gem> gems, Vector2 viewportSize, float a_elapsedTime, Microsoft.Xna.Framework.Content.ContentManager a_content)
+        {
+            float scale = m_camera.getScale();
+
+            foreach (Gem aGem in gems)
+            {
+                Vector2 gemPosition = m_camera.getViewPosition(aGem.getCenterBottomPosition().X, aGem.getCenterBottomPosition().Y, viewportSize);
+
+                //Create rectangle and draw it, note the transformation of the position
+                Rectangle destRect = new Rectangle((int)(gemPosition.X), (int)(gemPosition.Y), (int)scale, (int)scale);
+
+                //Get the source rectangle (pixels on the texture) for the tile type 
+                Rectangle sourceRectangle = new Rectangle(0, 0, 32, 32);
+
+                if (aGem.getGemType() == Gem.GemType.Life)
+                {
+                    spriteBatch.Draw(gemHeartTexture, destRect, sourceRectangle, Color.White);
+                }
+
+            }
         }
     }
 }

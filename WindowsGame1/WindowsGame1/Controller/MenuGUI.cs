@@ -27,7 +27,7 @@ namespace WindowsGame1.Controller
             m_button = a_content.Load<Texture2D>("menu_bg");
 
         }
-        
+
 
         internal bool DoButton(MouseState a_mouseState, string a_text, int a_centerPosX, int a_centerPosY)
         {
@@ -36,8 +36,8 @@ namespace WindowsGame1.Controller
 
             //Hantera indata och samla på sig information
             //om musen är över knappen 
-            if ((a_centerPosX - a_mouseState.X) * (a_centerPosX - a_mouseState.X) < HALF_WIDTH * HALF_WIDTH && 
-                (a_centerPosY - a_mouseState.Y) * (a_centerPosY - a_mouseState.Y) < HALF_HEIGHT * HALF_HEIGHT) 
+            if ((a_centerPosX - a_mouseState.X) * (a_centerPosX - a_mouseState.X) < HALF_WIDTH * HALF_WIDTH &&
+                (a_centerPosY - a_mouseState.Y) * (a_centerPosY - a_mouseState.Y) < HALF_HEIGHT * HALF_HEIGHT)
             {
                 mouseOver = true;
 
@@ -47,7 +47,7 @@ namespace WindowsGame1.Controller
                     wasClicked = true;
                 }
             }
-           
+
 
 
             //Räkna ut bra position för texten
@@ -63,7 +63,7 @@ namespace WindowsGame1.Controller
             //beroende på tillstånd rita ut knappen
             if (mouseOver)
             {
-                
+
                 //klick
                 if (a_mouseState.LeftButton == ButtonState.Pressed)
                 {
@@ -72,7 +72,7 @@ namespace WindowsGame1.Controller
                 }
                 else
                 {
-                    m_spriteBatch.Draw(m_button, destinationRectangle, Color.White);
+                    m_spriteBatch.Draw(m_button, destinationRectangle, Color.Purple);
                     m_spriteBatch.DrawString(m_baseFont, a_text, position, Color.White);
                 }
             }

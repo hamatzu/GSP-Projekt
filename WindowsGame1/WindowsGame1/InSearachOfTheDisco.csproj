@@ -18,6 +18,7 @@
     <XnaOutputType>Game</XnaOutputType>
     <ApplicationIcon>Game.ico</ApplicationIcon>
     <Thumbnail>GameThumbnail.png</Thumbnail>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -30,7 +31,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -112,6 +112,7 @@
     <Compile Include="Model\ColorChanger.cs" />
     <Compile Include="Model\Enemy.cs" />
     <Compile Include="Model\FloatRectangle.cs" />
+    <Compile Include="Model\Gem.cs" />
     <Compile Include="Model\Tile.cs" />
     <Compile Include="View\GameView.cs" />
     <Compile Include="Model\Game.cs" />
@@ -121,6 +122,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Controller\MasterController.cs" />
     <Compile Include="View\Camera.cs" />
+    <Compile Include="View\SmokeParticle.cs" />
+    <Compile Include="View\SmokeSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
