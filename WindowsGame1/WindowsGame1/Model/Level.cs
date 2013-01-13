@@ -27,13 +27,15 @@ namespace WindowsGame1.Model
         private Player player;
         private float scale;
         private Camera camera;
+        private  bool lastLevelFinished = false;
+        private Random randMovement = new Random();
 
         internal Level(Player a_player, Camera a_camera)
         {
             camera = a_camera;
             allLevels.Add("Level 1 - Where is the disco?");
             allLevels.Add("Level 2 - Dance baby, dance!");
-            allLevels.Add("Level 3 - There can only be one!");
+            allLevels.Add("Level 3 - What was that?!");
             player = a_player;
 
             currentLevelName = allLevels.ElementAt(currentLevelNr - 1);
@@ -45,7 +47,17 @@ namespace WindowsGame1.Model
             exitLevel = false;
             currentLevelNr++;
             enemyList.Clear();
-            LoadTiles("Content/Levels/level_" + currentLevelNr + ".txt");
+            gemList.Clear();
+
+            if (currentLevelNr > allLevels.Count)
+            {
+                lastLevelFinished = true;
+            }
+            else
+            {
+                lastLevelFinished = false;
+                LoadTiles("Content/Levels/level_" + currentLevelNr + ".txt");
+            }
         }
 
         private void LoadTiles(string fileStream)
@@ -129,9 +141,11 @@ namespace WindowsGame1.Model
 
                     if (aChar.ToString().Equals("G"))
                     {
+
                         levelTiles[x, y] = Tile.createEmpty();
                         Vector2 enemyPos = new Vector2(x, y);
                         Enemy theEnemy = new Enemy(enemyPos, camera.getScaleX());
+                        theEnemy.setEnemySpeed(new Vector2(2.0f * ((float)randMovement.NextDouble() / (float)1f) - 1.0f, (float)randMovement.NextDouble()));
                         theEnemy.setEnemyType(Enemy.EnemyType.Ghost);
                         enemyList.Add(theEnemy);
                     }
@@ -164,17 +178,28 @@ namespace WindowsGame1.Model
         }
 
         //Check if player is colliding with a tile
-        internal bool IsCollidingAt(FloatRectangle a_rect)
+        internal bool IsCollidingAt(FloatRectangle a_rect, Vector2 a_centerBottomPosition)
         {
+            //Vector2 topLeft = camera.getModelTopLeftPosition();
+            //Vector2 topRight = new Vector2(topLeft.X + 13, topLeft.Y);
+
+            Vector2 topLeft = new Vector2(a_centerBottomPosition.X - 2, a_centerBottomPosition.Y);
+            Vector2 topRight = new Vector2(a_centerBottomPosition.X + 2, a_centerBottomPosition.Y);
+
+            if (topRight.X > Model.Level.LEVEL_WIDTH)
+                topRight.X = Model.Level.LEVEL_WIDTH;
+
+            if (topLeft.X < 0)
+                topLeft.X = 0;
+
             Vector2 tileSize = new Vector2(1f, 1f);
-            for (int x = 0; x < LEVEL_WIDTH; x++)
+            for (int x = (int)topLeft.X; x < topRight.X; x++)
             {
                 for (int y = 0; y < LEVEL_HEIGHT; y++)
                 {
                     FloatRectangle rect = FloatRectangle.createFromTopLeft(new Vector2(x, y), tileSize);
                     if (a_rect.isIntersecting(rect))
                     {
-
                         if (levelTiles[x, y].isEnemyStop())
                         {
                             return true;
@@ -222,7 +247,6 @@ namespace WindowsGame1.Model
                         {
                             levelTiles[x, y] = Tile.createBlocked();
                         }
-                        Console.WriteLine(x + "," + y);
                     }
                 }
             }
@@ -236,6 +260,11 @@ namespace WindowsGame1.Model
         internal int getCurrentLevel()
         {
             return currentLevelNr;
+        }
+    
+        internal bool finishedLastLevel()
+        {
+ 	        return lastLevelFinished;
         }
     }
 }

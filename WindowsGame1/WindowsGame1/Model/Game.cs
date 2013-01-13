@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using WindowsGame1.View;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace WindowsGame1.Model
 {
@@ -24,10 +25,12 @@ namespace WindowsGame1.Model
         private SoundEffect lifeUp;
         private SoundEffectInstance lifeInstance;
         private bool blockFound = false;
+        private SpriteBatch m_spriteBatch;
 
-        public Game(Camera a_camera)
+        public Game(Camera a_camera, SpriteBatch a_spriteBatch)
         {
             m_camera = a_camera;
+            m_spriteBatch = a_spriteBatch;
             player = new Player();
             level = new Level(player, a_camera);
             player.createBoundingBox();
@@ -80,15 +83,13 @@ namespace WindowsGame1.Model
                 player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, 13));
 
                 int playerX = (int)player.getCenterBottomPosition().X;
-                int playerY = 14;
+                int playerY = 15;
 
                 //Check for closest tile that is blocked for respawn
-                for (int x = playerX; x > 0; x--)
+                for (int x = playerX; x >= 0; x--)
                 {
-                    Console.WriteLine(x);
-                    for (int y = playerY; y > 0; y--)
+                    for (int y = 0; y < playerY; y++)
                     {
-                        Console.WriteLine(y);
                         if (level.levelTiles[x, y].isBlocked())
                         {
                             player.setPlayerPosition(new Vector2(x + .6f, y - .3f));
@@ -100,9 +101,12 @@ namespace WindowsGame1.Model
                     if (blockFound)
                         break;
                 }
-                
-                player.setBlinkingState(Player.State.Blinking);
-                player.lostLife();
+
+                if (player.getBlinkingState() != Player.State.Blinking)
+                {
+                    player.setBlinkingState(Player.State.Blinking);
+                    player.lostLife();
+                }
             }
         }
 
@@ -132,7 +136,7 @@ namespace WindowsGame1.Model
             //If player is not hurt i.e not in blinking state check collision with enemy
             if (player.getBlinkingState() == Player.State.NotBlinking)
             {
-                checkEnemyCollision();
+                checkEnemyCollision(a_elapsedTimeSeconds);
             }
 
             //Set correct player state
@@ -163,22 +167,71 @@ namespace WindowsGame1.Model
                 hasCollidedWithGround = false;
                 Vector2 speed = aEnemy.getEnemySpeed();
 
-                if (didCollide(newPos, aEnemy.getEnemySize()))
+                if(aEnemy.getEnemyType() != Enemy.EnemyType.Ghost)
                 {
-                    CollisionDetails details = getCollisionDetails(oldPos, newPos, aEnemy.getEnemySize(), speed);
-                    hasCollidedWithGround = details.hasCollidedWithGround();
+                    if (didCollide(newPos, aEnemy.getEnemySize()))
+                    {
+                        CollisionDetails details = getCollisionDetails(oldPos, newPos, aEnemy.getEnemySize(), speed);
+                        hasCollidedWithGround = details.hasCollidedWithGround();
 
-                    //set the new speed and position after collision
-                    aEnemy.setEnemyPosition(details.positionAfterCollision());
-                    aEnemy.setEnemySpeed(details.speedAfterCollision());
+                        //set the new speed and position after collision
+                        aEnemy.setEnemyPosition(details.positionAfterCollision());
+                        aEnemy.setEnemySpeed(details.speedAfterCollision());
+                    }
                 }
-                
-            }
 
+                if (aEnemy.getEnemyType() == Enemy.EnemyType.Ghost)
+                {
+                    Vector2 enemyPosition = aEnemy.getCenterBottomPosition();
+                    enemyPosition.Y += aEnemy.getEnemySize().Y / 2;
+                    Vector2 playerPosition = player.getCenterBottomPosition();
+                    playerPosition.Y = playerPosition.Y + 1;
+                    Vector2 enemySpeed = aEnemy.getEnemySpeed();
+                    
+                    //Check if player is in sight for pursue 
+                    if (enemyPosition.X + 3 >= playerPosition.X &&
+                        enemyPosition.X - 3 <= playerPosition.X &&
+                        enemyPosition.Y + 3 >= playerPosition.Y &&
+                        enemyPosition.Y - 3 <= playerPosition.Y)
+                    {
+
+                        //If X greater than 0 going right, if X smaller than 0 going left
+                        //If Y greater than 0 going down, if Y smaller than 0 going up
+                        bool directionX = enemySpeed.X > 0;
+                        bool directionY = enemySpeed.Y > 0;
+
+                        if (enemyPosition.X < playerPosition.X && directionX == false)
+                        {
+                            //Console.WriteLine("go right");
+                            aEnemy.setEnemySpeed(new Vector2(1 , enemySpeed.Y));
+                        }
+                        
+                        if (enemyPosition.X > playerPosition.X && directionX == true)
+                        {
+                            //Console.WriteLine("go left");
+                            aEnemy.setEnemySpeed(new Vector2(-1, enemySpeed.Y));
+                        }
+
+                        if (enemyPosition.Y < playerPosition.Y && directionY == false)
+                        {
+                            //Console.WriteLine("go down");
+                            aEnemy.setEnemySpeed(new Vector2(enemySpeed.X, .8f));
+                        }
+                        
+                        if (enemyPosition.Y > playerPosition.Y && directionY == true)
+                        {
+                            //Console.WriteLine("go up");
+                            aEnemy.setEnemySpeed(new Vector2(enemySpeed.X,  -.8f));
+                        }
+
+                        //Console.WriteLine(enemySpeed);
+                    }
+                }
+            }
         }
 
-
-        private void checkEnemyCollision()
+                        
+        private void checkEnemyCollision(float a_elapsedTime)
         {
             // Loop through level enemies to check collision
             for (int i = 0; i < level.getLevelEnemies().Count; i++)
@@ -189,8 +242,9 @@ namespace WindowsGame1.Model
                 if (aEnemy.getEnemyTopBoundingBox().isIntersectingTop(player.getPlayerBoundingBox()) && aEnemy.getEnemyType() == Enemy.EnemyType.Rasta)
                 {
                     enemyDeadInstance.Play();
-                    player.setPlayerSpeed(new Vector2(player.getPlayerSpeed().X, -5f));
-                    level.getLevelEnemies().RemoveAt(i);
+                    player.setPlayerSpeed(new Vector2(player.getPlayerSpeed().X, -3f));
+                    aEnemy.setDead();
+                    level.getLevelEnemies().RemoveAt(i); 
                 }
                 //Check collision between enemy and player
                 else if (aEnemy.getEnemyBoundingBox().isIntersecting(player.getPlayerBoundingBox()))
@@ -198,24 +252,26 @@ namespace WindowsGame1.Model
                     //Lose life
                     player.lostLife();
 
-                    //Animate player when hurt
-                    if (player.getCurrentDirection() == Player.Direction.Right)
+                    if (aEnemy.getEnemyType() != Enemy.EnemyType.Ghost)
                     {
-                        player.setPlayerSpeed(new Vector2(-5.5f, player.getPlayerSpeed().Y));
+                        //Animate player when hurt
+                        if (player.getCurrentDirection() == Player.Direction.Right)
+                        {
+                            player.setPlayerSpeed(new Vector2(-5.5f, player.getPlayerSpeed().Y));
+                        }
+
+                        if (player.getCurrentDirection() == Player.Direction.Left)
+                        {
+                            player.setPlayerSpeed(new Vector2(5.5f, player.getPlayerSpeed().Y));
+                        }
+
+                        //Set cooldown
+                        player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, player.getCenterBottomPosition().Y - .5f));
                     }
 
-                    if (player.getCurrentDirection() == Player.Direction.Left)
-                    {
-                        player.setPlayerSpeed(new Vector2(5.5f, player.getPlayerSpeed().Y));
-                    }
-
-                    //Set cooldown
-                    player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, player.getCenterBottomPosition().Y - 1f));
                     player.setBlinkingState(Player.State.Blinking);
                     enemyHitInstance.Play();
                 }
-
-                
             }
         }
 
@@ -237,7 +293,7 @@ namespace WindowsGame1.Model
         private bool didCollide(Vector2 a_centerBottom, Vector2 a_size)
         {
             FloatRectangle occupiedArea = FloatRectangle.createFromCenterBottom(a_centerBottom, a_size);
-            if (level.IsCollidingAt(occupiedArea))
+            if (level.IsCollidingAt(occupiedArea, a_centerBottom))
             {
                 return true;
             }

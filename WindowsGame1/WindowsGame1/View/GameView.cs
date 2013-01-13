@@ -39,7 +39,7 @@ namespace WindowsGame1.View
         private Texture2D enemyTextureHipHopper;
         private Texture2D enemyTextureGhost;
         private Texture2D enemyTextureRasta;
-        View.SmokeSystem smokeSystem;
+        private SplitterSystem enemyDeadExplosion = new SplitterSystem();
         private Texture2D gemHeartTexture;
 
         public GameView(SpriteBatch batch, Camera camera, Level lvl, Player a_player, GraphicsDevice a_graphicsDevice)
@@ -73,6 +73,7 @@ namespace WindowsGame1.View
             gemHeartTexture = content.Load<Texture2D>("gemHeart");
 
             inGameFont = content.Load<SpriteFont>("VerdanaInGame");
+            enemyDeadExplosion.LoadContent(content);
 
             dummyTexture = new Texture2D(m_graphicsDevice, 1, 1);
             dummyTexture.SetData(new Color[] { Color.White });
@@ -129,12 +130,14 @@ namespace WindowsGame1.View
             spriteBatch.Draw(crowdTexture, destinationRectangle2, Color.White);
 
             Vector2 topLeft = m_camera.getModelTopLeftPosition();
-            Vector2 topRight = new Vector2(topLeft.X + 13, 0);
-            topLeft.Y = 0;
+            Vector2 topRight = new Vector2(topLeft.X + 13, topLeft.Y);
+
+            if (topRight.X > Model.Level.LEVEL_WIDTH)
+                topRight.X = Model.Level.LEVEL_WIDTH;
 
 
             //draw level
-            for (int x = 0; x < Model.Level.LEVEL_WIDTH; x++)
+            for (int x = (int)topLeft.X; x < topRight.X; x++)
             {
                 for (int y = 0; y < Model.Level.LEVEL_HEIGHT; y++)
                 {
@@ -190,8 +193,6 @@ namespace WindowsGame1.View
             spriteBatch.Draw(heartTexture, destRect, Color.White);
             spriteBatch.DrawString(fontTexture, "x " + player.getLifes(), new Vector2(52, 10), Color.White);
         }
-
-
 
         private void DrawPlayerAt(Microsoft.Xna.Framework.Vector2 a_viewBottomCenterPosition, float a_scale, Player a_player)
         {
@@ -268,11 +269,6 @@ namespace WindowsGame1.View
                     //Get the source rectangle (pixels on the texture) for the tile type 
                     Rectangle sourceRectangle = new Rectangle(40 * textureIndex, 50 * textureRowIndex, 40, 50);
 
-                    //Console.WriteLine(enemyPosition);
-                    //smokeSystem = new View.SmokeSystem(enemyPosition);
-                    //smokeSystem.LoadContent(a_content);
-                    //smokeSystem.UpdateAndDraw(a_elapsedTime, spriteBatch, m_camera);
-
                     spriteBatch.Draw(enemyTextureRasta, destRect, sourceRectangle, Color.White);
                 }
 
@@ -292,8 +288,13 @@ namespace WindowsGame1.View
                     spriteBatch.Draw(enemyTextureHipHopper, destRect, sourceRectangle, Color.White);
                 }
 
+
+                if (aEnemy.isDead())
+                {
+                    enemyDeadExplosion.initializeParticles(aEnemy.getCenterBottomPosition());
+                    enemyDeadExplosion.UpdateAndDraw(a_elapsedTime, spriteBatch, m_camera, aEnemy.getCenterBottomPosition());
+                }
             }
-   
         }
 
         private void DrawGems(List<Gem> gems, Vector2 viewportSize, float a_elapsedTime, Microsoft.Xna.Framework.Content.ContentManager a_content)

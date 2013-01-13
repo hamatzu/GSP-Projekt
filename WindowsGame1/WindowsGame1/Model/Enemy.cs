@@ -10,7 +10,7 @@ namespace WindowsGame1.Model
     {
         Vector2 centerBottomPosition;
         Vector2 enemySpeed = new Vector2(0, 0f);
-        private Vector2 enemySize = new Vector2(.95f, .95f);
+        private Vector2 enemySize = new Vector2(.80f, .95f);
 
         TimeSpan timePerFrame = TimeSpan.FromSeconds((float)1 / 6);
         Point currentFrame = new Point(0, 0);
@@ -25,6 +25,7 @@ namespace WindowsGame1.Model
         FloatRectangle enemyBoundingBox;
         private EnemyType enemyType;
         private FloatRectangle enemyTopBoundingBox;
+        private bool dead = false;
 
 
         public enum EnemyType
@@ -83,8 +84,7 @@ namespace WindowsGame1.Model
                     totalElapsed -= (float)timePerFrame.TotalSeconds;
                 }
             }
-
-            if (enemyType == EnemyType.Rasta)
+            else if (enemyType == EnemyType.Rasta)
             {
                 if (distance <= 0)
                 {
@@ -120,12 +120,56 @@ namespace WindowsGame1.Model
                 }
 
             }
+            else if (enemyType == EnemyType.Ghost)
+            {
 
-            //integrate position
-            centerBottomPosition = centerBottomPosition + enemySpeed * a_elapsedTime + gravityAcceleration * a_elapsedTime * a_elapsedTime;
+                totalElapsed += a_elapsedTime;
+                if (totalElapsed > timePerFrame.TotalSeconds)
+                {
+                    currentFrame.X++;
+                    if (currentFrame.X >= 12)
+                    {
+                        currentFrame.X = 0;
+                    }
+                    totalElapsed -= (float)timePerFrame.TotalSeconds;
+                }
 
-            //integrate speed
-            enemySpeed = enemySpeed + a_elapsedTime * gravityAcceleration;
+
+                bool directionX = enemySpeed.X > 0;
+                bool directionY = enemySpeed.Y > 0;
+                
+                                      
+                if (centerBottomPosition.Y > Model.Level.LEVEL_HEIGHT && directionY == true)
+                {
+                    setEnemySpeed(new Vector2(enemySpeed.X, -enemySpeed.Y));
+                }
+                
+                if (centerBottomPosition.Y < 2 && directionY == false)
+                {
+                    setEnemySpeed(new Vector2(enemySpeed.X, enemySpeed.Y - enemySpeed.Y * 2));
+                }
+
+                if (centerBottomPosition.X < 0 + enemySize.X/2 && directionX == false)
+                {
+                    setEnemySpeed(new Vector2(-enemySpeed.X, enemySpeed.Y));
+                }
+
+                if (centerBottomPosition.X > Model.Level.LEVEL_WIDTH && directionX == true)
+                {
+                    setEnemySpeed(new Vector2(enemySpeed.X, enemySpeed.Y));
+                }
+
+                //Ghosts don't apply any gravity
+                gravityAcceleration.Y = 0;
+            }
+            
+
+                //integrate position
+                centerBottomPosition = centerBottomPosition + enemySpeed * a_elapsedTime + gravityAcceleration * a_elapsedTime * a_elapsedTime;
+
+                //integrate speed
+                enemySpeed = enemySpeed + a_elapsedTime * gravityAcceleration;
+            
             
             createBoundingBox();
             createTopBoundingBox();
@@ -174,6 +218,16 @@ namespace WindowsGame1.Model
         internal FloatRectangle getEnemyTopBoundingBox()
         {
             return enemyTopBoundingBox;
+        }
+
+        internal bool isDead()
+        {
+            return dead;
+        }
+
+        internal void setDead()
+        {
+            dead = true;
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using WindowsGame1.Model;
 using WindowsGame1.Controller;
+using System.IO;
 
 
 //I am adding some comment code to test GIT!
@@ -110,7 +111,7 @@ namespace WindowsGame1
             doorEffect = Content.Load<SoundEffect>("door");
             doorInstance = doorEffect.CreateInstance();
             doorInstance.Pitch = 1f;
-            doorInstance.Volume = 1f;
+            doorInstance.Volume = .5f;
 
             dummyTexture = new Texture2D(graphics.GraphicsDevice, 1, 1);
             dummyTexture.SetData(new Color[] { Color.White });
@@ -150,14 +151,36 @@ namespace WindowsGame1
                 this.Exit();
 
 
-            if (currentGameState == GameState.NextLevel)
+            if (currentGameState == GameState.GameEnded)
+            {
+
+            }
+            else if (currentGameState == GameState.NextLevel)
             {
                 if(newState.IsKeyDown(Keys.Enter))
                 {
                     doorInstance.Play();
                     game.getLevel().nextLevel();
 
-                    backgroundMusic = Content.Load<SoundEffect>("level" + game.getLevel().getCurrentLevel());
+                    if (game.getLevel().finishedLastLevel())
+                    {
+                        int menuX = camera.getScreenWidth() / 2;
+                        int menuY = camera.getScreenHeight() / 3 + 40;
+
+                        Mouse.SetPosition(menuX, menuY);
+                        currentGameState = GameState.GameEnded;
+                    }
+
+
+                    if (File.Exists("Content/level" + game.getLevel().getCurrentLevel() + ".xnb") ||
+                        File.Exists("Content/level" + game.getLevel().getCurrentLevel() + ".mp3"))
+                    {
+                        backgroundMusic = Content.Load<SoundEffect>("level" + game.getLevel().getCurrentLevel());
+                    }
+                    else
+                    {
+                        backgroundMusic = Content.Load<SoundEffect>("level1");
+                    }
                     playingInstance = backgroundMusic.CreateInstance();
                     playingInstance.IsLooped = true;
                     playingInstance.Pan = .5f;
@@ -202,7 +225,7 @@ namespace WindowsGame1
                 titleColor = new Color(a, a, a, a);
 
                 //If any keyed pressed
-                if (newState.GetPressedKeys().Length > 0)
+                if (newState.GetPressedKeys().Length > 0 && !newState.IsKeyDown(Keys.F9))
                 {
                     if (oldState.GetPressedKeys().Length > 0)
                     {
@@ -214,12 +237,20 @@ namespace WindowsGame1
             }
             else if (currentGameState == GameState.GameStarted)
             {
+                newState = Keyboard.GetState();
 
                 if (game.getLevel().isExitLevel())
                 {
                     doorInstance.Play();
                     playingInstance.Stop();
-                    currentGameState = GameState.NextLevel;
+                    if(game.getLevel().finishedLastLevel())
+                    {
+                        currentGameState = GameState.GameEnded;
+                    }
+                    else
+                    {
+                        currentGameState = GameState.NextLevel;
+                    }
                 }
 
                 if (isEditingLevel)
@@ -249,40 +280,28 @@ namespace WindowsGame1
                 // Is the Left key down?
                 if (newState.IsKeyDown(Keys.Left))
                 {
-                    // If not down last update, key has just been pressed.
-                    if (!oldState.IsKeyDown(Keys.Left))
+                    if (game.getPlayer().getCurrentState() != Player.State.Falling)
                     {
-                        if (game.getPlayer().getCurrentState() != Player.State.Falling)
-                        {
-                            game.getPlayer().setCurrentState(Player.State.Walking);
-                        }
-                        game.getPlayer().setCurrentDirection(Player.Direction.Left);
-                        game.goLeft();
+                        game.getPlayer().setCurrentState(Player.State.Walking);
                     }
+                    game.getPlayer().setCurrentDirection(Player.Direction.Left);
+                    game.goLeft();
                 }
 
                 if (newState.IsKeyDown(Keys.Right))
                 {
-                    // If not down last update, key has just been pressed.
-                    if (!oldState.IsKeyDown(Keys.Right))
+                    if (game.getPlayer().getCurrentState() != Player.State.Falling)
                     {
-                        if (game.getPlayer().getCurrentState() != Player.State.Falling)
-                        {
-                            game.getPlayer().setCurrentState(Player.State.Walking);
-                        }
-                        game.getPlayer().setCurrentDirection(Player.Direction.Right);
-                        game.goRight();
+                        game.getPlayer().setCurrentState(Player.State.Walking);
                     }
+                    game.getPlayer().setCurrentDirection(Player.Direction.Right);
+                    game.goRight();
                 }
 
                 if (newState.IsKeyDown(Keys.Space))
                 {
-                    // If not down last update, key has just been pressed.
-                    if (!oldState.IsKeyDown(Keys.Space))
-                    {
-                        game.getPlayer().setCurrentState(Player.State.Jumping);
-                        game.playerJump();
-                    }
+                    game.getPlayer().setCurrentState(Player.State.Jumping);
+                    game.playerJump();
                 }
 
                 // Is the F1 key down?
@@ -296,11 +315,10 @@ namespace WindowsGame1
                 }
 
                 // Is the game paused
-                if (newState.IsKeyDown(Keys.Escape) || newState.IsKeyDown(Keys.P))
+                if (newState.IsKeyDown(Keys.Escape))
                 {
-                    if (!oldState.IsKeyDown(Keys.Escape) || !oldState.IsKeyDown(Keys.P))
+                    if (!oldState.IsKeyDown(Keys.Escape))
                     {
-                        Console.WriteLine("pause");
                         if (gamePaused == true)
                         {
                             playingInstance.Play();
@@ -314,11 +332,14 @@ namespace WindowsGame1
                     }
                 }
 
+                oldState = newState;
+
                 if (gamePaused == false && game.gameOver == false)
                 {
                     gameView.UpdateView((float)gameTime.ElapsedGameTime.TotalSeconds);
                     game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
                 }
+
             }
             base.Update(gameTime);
         }
@@ -331,7 +352,106 @@ namespace WindowsGame1
         {
             GraphicsDevice.Clear(Color.Black);
 
-            if (currentGameState == GameState.NextLevel)
+            if (currentGameState == GameState.GameEnded)
+            {
+                KeyboardState newState = Keyboard.GetState();
+
+                //Räkna ut position för knappen
+                Rectangle destinationRectangle = new Rectangle(0, 0, camera.getScreenWidth(), camera.getScreenHeight());
+
+                spriteBatch.Begin();
+                spriteBatch.Draw(dummyTexture, destinationRectangle, Color.Black);
+                spriteBatch.DrawString(font, "Congratulations, you have finished all levels!", new Vector2(camera.getScreenWidth() / 2 - font.MeasureString("Congratulations, you have finished all levels!").X / 2, camera.getScreenHeight() / 4), Color.White);
+                spriteBatch.End();
+
+                int menuX = camera.getScreenWidth() / 2;
+                int menuY = camera.getScreenHeight() / 3 + 40;
+                int buttonSeparation = 45;
+
+                if (newState.IsKeyDown(Keys.Down))
+                {
+                    // If not down last update, key has just been pressed.
+                    if (!oldState.IsKeyDown(Keys.Down))
+                    {
+                        Mouse.SetPosition(menuX, menuY + buttonSeparation);
+                        mainActiveItem = 2;
+                    }
+                }
+                else if (newState.IsKeyDown(Keys.Up))
+                {
+                    // If not down last update, key has just been pressed.
+                    if (!oldState.IsKeyDown(Keys.Up))
+                    {
+                        Mouse.SetPosition(menuX, menuY);
+                        mainActiveItem = 1;
+                    }
+                }
+                else if (newState.IsKeyDown(Keys.Enter))
+                {
+                    // If not down last update, key has just been pressed.
+                    if (!oldState.IsKeyDown(Keys.Enter))
+                    {
+                        if (mainActiveItem == 1)
+                        {
+                            play = true;
+
+                            game = new Model.Game(camera, spriteBatch);
+                            gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer(), graphics.GraphicsDevice);
+
+                            game.LoadContent(Content);
+                            gameView.LoadContent(Content);
+
+                            Mouse.SetPosition(camera.getScreenWidth() / 2, camera.getScreenWidth() / 3 - 40);
+
+                            backgroundMusic = Content.Load<SoundEffect>("level1");
+                            playingInstance = backgroundMusic.CreateInstance();
+                            playingInstance.IsLooped = true;
+                            playingInstance.Pan = .5f;
+
+                            currentGameState = GameState.GameStarted;
+
+                        }
+
+                        if (mainActiveItem == 2)
+                        {
+                            titleInstance.Play();
+                            play = false;
+                            gamePaused = false;
+                            Mouse.SetPosition(camera.getScreenWidth() / 5, camera.getScreenHeight() - camera.getScreenHeight() / 4);
+                            mainActiveItem = 1;
+                            currentGameState = GameState.MainMenu;
+                        }
+                    }
+                }
+
+                if (m_gui.DoButton(Mouse.GetState(), "New game", menuX, menuY))
+                {
+                    play = true;
+                    gamePaused = false;
+
+                    game = new Model.Game(camera, spriteBatch);
+                    gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer(), graphics.GraphicsDevice);
+
+                    game.LoadContent(Content);
+                    gameView.LoadContent(Content);
+
+                    backgroundMusic = Content.Load<SoundEffect>("level1");
+                    playingInstance = backgroundMusic.CreateInstance();
+                    playingInstance.IsLooped = true;
+                    playingInstance.Pan = .5f;
+
+                    currentGameState = GameState.GameStarted;
+                }
+
+                if (m_gui.DoButton(Mouse.GetState(), "Exit", menuX, menuY += buttonSeparation))
+                {
+                    this.Exit();
+                }
+
+                oldState = newState;
+                m_gui.setOldState(Mouse.GetState());
+            }
+            else if (currentGameState == GameState.NextLevel)
             {
                 //Räkna ut position för knappen
                 Rectangle destinationRectangle = new Rectangle(0, 0, camera.getScreenWidth(), camera.getScreenHeight());
@@ -396,9 +516,8 @@ namespace WindowsGame1
                         if (mainActiveItem == 1)
                         {
                             play = true;
-                            Console.WriteLine("New Game");
 
-                            game = new Model.Game(camera);
+                            game = new Model.Game(camera, spriteBatch);
                             gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer(), graphics.GraphicsDevice);
 
                             game.LoadContent(Content);
@@ -426,9 +545,8 @@ namespace WindowsGame1
                 {
                     play = true;
                     gamePaused = false;
-                    Console.WriteLine("New Game");
 
-                    game = new Model.Game(camera);
+                    game = new Model.Game(camera, spriteBatch);
                     gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer(), graphics.GraphicsDevice);
 
                     game.LoadContent(Content);
@@ -483,13 +601,11 @@ namespace WindowsGame1
 
                     if (newState.IsKeyDown(Keys.Down))
                     {
-                            Console.WriteLine("Down");
                             Mouse.SetPosition(menuX, menuY + buttonSeparation);
                             mainActiveItem = 2;
                     }
                     else if (newState.IsKeyDown(Keys.Up))
                     {
-                            Console.WriteLine("Up");
                             Mouse.SetPosition(menuX, menuY);
                             mainActiveItem = 1;
                     }
@@ -547,13 +663,11 @@ namespace WindowsGame1
 
                     if (newState.IsKeyDown(Keys.Down))
                     {
-                        Console.WriteLine("Down");
                         Mouse.SetPosition(menuX, menuY + buttonSeparation);
                         mainActiveItem = 2;
                     }
                     else if (newState.IsKeyDown(Keys.Up))
                     {
-                        Console.WriteLine("Up");
                         Mouse.SetPosition(menuX, menuY);
                         mainActiveItem = 1;
                     }
@@ -562,10 +676,9 @@ namespace WindowsGame1
                         if (mainActiveItem == 1)
                         {
                             play = true;
-                            Console.WriteLine("New Game");
                             gamePaused = false;
 
-                            game = new Model.Game(camera);
+                            game = new Model.Game(camera, spriteBatch);
                             gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer(), graphics.GraphicsDevice);
 
                             game.LoadContent(Content);
@@ -593,10 +706,9 @@ namespace WindowsGame1
                     if (m_gui.DoButton(Mouse.GetState(), "New Game", menuX, menuY))
                     {
                         play = true;
-                        Console.WriteLine("New Game");
                         gamePaused = false;
 
-                        game = new Model.Game(camera);
+                        game = new Model.Game(camera, spriteBatch);
                         gameView = new View.GameView(spriteBatch, camera, game.getLevel(), game.getPlayer(), graphics.GraphicsDevice);
 
                         game.LoadContent(Content);

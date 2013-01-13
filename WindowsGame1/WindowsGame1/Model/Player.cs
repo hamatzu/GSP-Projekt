@@ -16,11 +16,11 @@ namespace WindowsGame1.Model
 
         private float playerWidth = 1;
         private float playerHeight = 1;
-        private Vector2 playerSize = new Vector2(.95f, .95f);
+        private Vector2 playerSize = new Vector2(.90f, .95f);
         private FloatRectangle playerBoundingBox;
 
         State currentState = State.Standing;
-        TimeSpan timePerFrame = TimeSpan.FromSeconds((float)1 / 14);
+        TimeSpan timePerFrame = TimeSpan.FromSeconds((float)1 / 12);
         Point currentFrame = new Point(0, 0);
         float totalElapsed;
         bool allowedJump = true;
@@ -201,7 +201,7 @@ namespace WindowsGame1.Model
             if (isAllowedJump())
             {
                 currentState = State.Jumping;
-                playerSpeed.Y = -7f;
+                playerSpeed.Y = -6.5f;
             }
         }
 
