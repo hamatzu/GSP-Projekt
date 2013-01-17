@@ -13,9 +13,6 @@ namespace WindowsGame1.Model
         Vector2 playerSpeed = new Vector2(0, 0f);
 
         int playerLifes;
-
-        private float playerWidth = 1;
-        private float playerHeight = 1;
         private Vector2 playerSize = new Vector2(.90f, .95f);
         private FloatRectangle playerBoundingBox;
 
@@ -23,6 +20,9 @@ namespace WindowsGame1.Model
         TimeSpan timePerFrame = TimeSpan.FromSeconds((float)1 / 12);
         Point currentFrame = new Point(0, 0);
         float totalElapsed;
+
+        private bool mustDance = false;
+        private bool lostALife = false;
         bool allowedJump = true;
 
         Direction currentDirection;
@@ -30,8 +30,7 @@ namespace WindowsGame1.Model
         private float maxBlinkingTime = 3f;
         float blinkingTime = 0f;
         State blinkingState = State.NotBlinking;
-        private bool mustDance = false;
-        private bool lostALife = false;
+
 
         public enum Direction
         {
@@ -179,16 +178,6 @@ namespace WindowsGame1.Model
         internal FloatRectangle getPlayerBoundingBox()
         {
             return playerBoundingBox;
-        }
-
-        internal float getPlayerHeight()
-        {
-            return playerHeight;
-        }
-
-        internal float getPlayerWidth()
-        {
-            return playerWidth;
         }
 
         internal Vector2 getCenterBottomPosition()

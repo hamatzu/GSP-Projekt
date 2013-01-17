@@ -26,6 +26,7 @@ namespace WindowsGame1.Model
         private SoundEffectInstance lifeInstance;
         private bool blockFound = false;
         private SpriteBatch m_spriteBatch;
+        private Vector2 respawnPosition;
 
         public Game(Camera a_camera, SpriteBatch a_spriteBatch)
         {
@@ -78,29 +79,9 @@ namespace WindowsGame1.Model
             //If player goes outside bottom of map
             if (player.getCenterBottomPosition().Y > Model.Level.LEVEL_HEIGHT)
             {
-
-                blockFound = false;
-                player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, 13));
-
-                int playerX = (int)player.getCenterBottomPosition().X;
-                int playerY = 15;
-
-                //Check for closest tile that is blocked for respawn
-                for (int x = playerX; x >= 0; x--)
-                {
-                    for (int y = 0; y < playerY; y++)
-                    {
-                        if (level.levelTiles[x, y].isBlocked())
-                        {
-                            player.setPlayerPosition(new Vector2(x + .6f, y - .3f));
-                            blockFound = true;
-                            break;
-                        }
-                    }
-
-                    if (blockFound)
-                        break;
-                }
+                Console.WriteLine(respawnPosition);
+                player.setPlayerSpeed(new Vector2(0, 0));
+                player.setPlayerPosition(respawnPosition);
 
                 if (player.getBlinkingState() != Player.State.Blinking)
                 {
@@ -134,10 +115,8 @@ namespace WindowsGame1.Model
             }
 
             //If player is not hurt i.e not in blinking state check collision with enemy
-            if (player.getBlinkingState() == Player.State.NotBlinking)
-            {
-                checkEnemyCollision(a_elapsedTimeSeconds);
-            }
+            checkEnemyCollision(a_elapsedTimeSeconds);
+
 
             //Set correct player state
             if (!hasCollidedWithGround)
@@ -146,6 +125,13 @@ namespace WindowsGame1.Model
             }
             else
             {
+                respawnPosition = player.getCenterBottomPosition();
+                respawnPosition.Y -= .3f;
+                if(player.getCurrentDirection() == Player.Direction.Right)
+                    respawnPosition.X -= .45f;
+                if (player.getCurrentDirection() == Player.Direction.Left)
+                    respawnPosition.X += .45f;
+
                 player.setCurrentState(Player.State.Standing);
             }
             
@@ -238,39 +224,39 @@ namespace WindowsGame1.Model
             {
                 Enemy aEnemy = level.getLevelEnemies().ElementAt(i);
 
-                // Kill enemy if jumping on top of it
-                if (aEnemy.getEnemyTopBoundingBox().isIntersectingTop(player.getPlayerBoundingBox()) && aEnemy.getEnemyType() == Enemy.EnemyType.Rasta)
+                if (!aEnemy.isDead())
                 {
-                    enemyDeadInstance.Play();
-                    player.setPlayerSpeed(new Vector2(player.getPlayerSpeed().X, -3f));
-                    aEnemy.setDead();
-                    level.getLevelEnemies().RemoveAt(i); 
-                }
-                //Check collision between enemy and player
-                else if (aEnemy.getEnemyBoundingBox().isIntersecting(player.getPlayerBoundingBox()))
-                {
-                    //Lose life
-                    player.lostLife();
-
-                    if (aEnemy.getEnemyType() != Enemy.EnemyType.Ghost)
+                    // Kill enemy if jumping on top of it
+                    if (aEnemy.getEnemyTopBoundingBox().isIntersectingTop(player.getPlayerBoundingBox()) && aEnemy.getEnemyType() == Enemy.EnemyType.Rasta)
                     {
-                        //Animate player when hurt
-                        if (player.getCurrentDirection() == Player.Direction.Right)
-                        {
-                            player.setPlayerSpeed(new Vector2(-5.5f, player.getPlayerSpeed().Y));
-                        }
-
-                        if (player.getCurrentDirection() == Player.Direction.Left)
-                        {
-                            player.setPlayerSpeed(new Vector2(5.5f, player.getPlayerSpeed().Y));
-                        }
-
-                        //Set cooldown
-                        player.setPlayerPosition(new Vector2(player.getCenterBottomPosition().X, player.getCenterBottomPosition().Y - .5f));
+                        enemyDeadInstance.Play();
+                        player.setPlayerSpeed(new Vector2(player.getPlayerSpeed().X, -3f));
+                        aEnemy.setDead(true);
+                        aEnemy.doExplosion(true);
                     }
+                    //Check collision between enemy and player only if you are not hurt I.E not blinking
+                    if (aEnemy.getEnemyBoundingBox().isIntersecting(player.getPlayerBoundingBox()) && player.getBlinkingState() == Player.State.NotBlinking)
+                    {
+                        //Lose life
+                        player.lostLife();
 
-                    player.setBlinkingState(Player.State.Blinking);
-                    enemyHitInstance.Play();
+                        if (aEnemy.getEnemyType() != Enemy.EnemyType.Ghost)
+                        {
+                            //Animate player when hurt
+                            if (player.getCurrentDirection() == Player.Direction.Right)
+                            {
+                                player.setPlayerSpeed(new Vector2(-5.5f, -2f));
+                            }
+
+                            if (player.getCurrentDirection() == Player.Direction.Left)
+                            {
+                                player.setPlayerSpeed(new Vector2(5.5f, -2f));
+                            }
+                        }
+
+                        player.setBlinkingState(Player.State.Blinking);
+                        enemyHitInstance.Play();
+                    }
                 }
             }
         }

@@ -16,19 +16,15 @@ namespace WindowsGame1.View
         //State 
         List<SmokeParticle> allSmokeParticles = new List<SmokeParticle>();
         private float rotation;
-        private Vector2 origin;
         private float scale;
         private Vector2 systemPosition;
-        private float particlesPerSecond = 2f;
+        private float particlesPerSecond = 10f;
         private float releaseRate = 0f;
         private Vector2 textureOrigin;
         private float releaseTimer = 0f;
         private float particleSystemTL = 0f;
         private int totalParticles = 0;
         private int maxParticles = 20;
-
-
-
 
         public SmokeSystem(Microsoft.Xna.Framework.Vector2 a_modelPosition)
         {
@@ -45,6 +41,7 @@ namespace WindowsGame1.View
 
         internal void UpdateAndDraw(float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)
         {
+
             particleSystemTL += a_elapsedTime;
 
             releaseTimer += a_elapsedTime;
@@ -69,9 +66,9 @@ namespace WindowsGame1.View
                 if (allSmokeParticles.ElementAt(index).IsAlive())
                 {
                     //Get particle position and convert to view coordinates
-                    Vector2 particleCenterPosition = a_camera.convertToView(allSmokeParticles.ElementAt(index).getParticlePostion().X,
-                                                                            allSmokeParticles.ElementAt(index).getParticlePostion().Y);
+                    Vector2 particleCenterPosition = a_camera.getViewPosition(allSmokeParticles.ElementAt(index).getParticlePostion().X, allSmokeParticles.ElementAt(index).getParticlePostion().Y - .45f, new Vector2(a_camera.getScreenWidth(), a_camera.getScreenHeight()));
 
+                    
                     //Spark destination rectangle
                     Rectangle destinationRectangle = new Rectangle((int)particleCenterPosition.X, (int)particleCenterPosition.Y, smokeTexture.Width, smokeTexture.Height);
 
@@ -83,7 +80,6 @@ namespace WindowsGame1.View
                     rotation = allSmokeParticles.ElementAt(index).getRotation();
 
                     a_spriteBatch.Draw(smokeTexture, particleCenterPosition, null, particleColor, rotation, textureOrigin, scale, SpriteEffects.None, 0);
-                    //a_spriteBatch.Draw(smokeTexture, destinationRectangle, particleColor);
 
                 }
 
@@ -96,7 +92,6 @@ namespace WindowsGame1.View
                 if (!allSmokeParticles.ElementAt(z).IsAlive())
                 {
                     allSmokeParticles.RemoveAt(z);
-                    Console.WriteLine("removed");
                     z--;
                 }
             }

@@ -17,8 +17,7 @@ namespace WindowsGame1.Model
             EMPTY = 0,
             BLOCKED,
             TRAP,
-            EXIT,
-            ENEMYSTOP
+            EXIT
         };
 
         internal static Tile createBlocked()
@@ -79,17 +78,6 @@ namespace WindowsGame1.Model
         internal void setWalkedOn(bool walked)
         {
             walkedOn = walked;
-        }
-
-
-        internal bool isEnemyStop()
-        {
-            return tileType == TileType.ENEMYSTOP;
-        }
-
-        internal static Tile createEnemyStop()
-        {
-            return new Tile(TileType.ENEMYSTOP);
         }
 
         internal bool isEmpty()

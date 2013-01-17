@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework;
 
 namespace WindowsGame1.Model
 {
-    // Class for handling CollisionDetails
     class CollisionDetails
     {
         public Vector2 _speedAfterCollision;

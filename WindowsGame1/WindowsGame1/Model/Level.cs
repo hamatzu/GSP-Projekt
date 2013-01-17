@@ -23,12 +23,13 @@ namespace WindowsGame1.Model
         private List<string> allLevels = new List<string>();
         string currentLevelName;
         int currentLevelNr = 1;
-        private bool exitLevel = false;
+
         private Player player;
-        private float scale;
         private Camera camera;
-        private  bool lastLevelFinished = false;
+
         private Random randMovement = new Random();
+        private bool exitLevel = false;
+        private bool lastLevelFinished = false;
 
         internal Level(Player a_player, Camera a_camera)
         {
@@ -42,6 +43,10 @@ namespace WindowsGame1.Model
             LoadTiles("Content/Levels/level_" + currentLevelNr + ".txt");
         }
 
+
+        /*************************************
+         * Load next level
+         *************************************/
         public void nextLevel()
         {
             exitLevel = false;
@@ -60,7 +65,10 @@ namespace WindowsGame1.Model
             }
         }
 
-        private void LoadTiles(string fileStream)
+        /*************************************************
+         * Load tiles from file and populate levelTiles
+         *************************************************/
+        public void LoadTiles(string fileStream)
         {
             // Load the level and ensure all of the lines are the same length.
             int width = 0;
@@ -91,27 +99,30 @@ namespace WindowsGame1.Model
                 int x = 0;
                 foreach (char aChar in row)
                 {
+                    //Block tile
                     if(aChar.ToString().Equals("#"))
                         levelTiles[x, y] = Tile.createBlocked();
 
+                    //Empty tile
                     if (aChar.ToString().Equals("."))
                         levelTiles[x, y] = Tile.createEmpty();
 
+                    //Trap I.E Disco tile
                     if (aChar.ToString().Equals("T"))
                         levelTiles[x, y] = Tile.createTrap();
 
+                    //Player start position
                     if (aChar.ToString().Equals("1"))
                     {
                         levelTiles[x, y] = Tile.createEmpty();
                         player.setPlayerPosition(new Vector2(x, y));
                     }
 
+                    //Exit tile
                     if (aChar.ToString().Equals("X"))
                         levelTiles[x, y] = Tile.createExit();
 
-                    if(aChar.ToString().Equals("|"))
-                        levelTiles[x, y] = Tile.createEnemyStop();
-
+                    //Heart Tile/gem
                     if (aChar.ToString().Equals("L"))
                     {
                         levelTiles[x, y] = Tile.createEmpty();
@@ -121,6 +132,7 @@ namespace WindowsGame1.Model
                         gemList.Add(aGem);
                     }
 
+                    // Enemy - Rasta
                     if (aChar.ToString().Equals("R"))
                     {
                         levelTiles[x, y] = Tile.createEmpty();
@@ -130,6 +142,7 @@ namespace WindowsGame1.Model
                         enemyList.Add(theEnemy);
                     }
 
+                    // Enemy - HipHopper
                     if (aChar.ToString().Equals("H"))
                     {
                         levelTiles[x, y] = Tile.createEmpty();
@@ -139,6 +152,7 @@ namespace WindowsGame1.Model
                         enemyList.Add(theEnemy);
                     }
 
+                    // Enemy - Ghost
                     if (aChar.ToString().Equals("G"))
                     {
 
@@ -150,39 +164,21 @@ namespace WindowsGame1.Model
                         enemyList.Add(theEnemy);
                     }
 
-
                     levelTiles[x, y].setTilePosition(new Vector2(x, y));
 
-                    //Console.Write(aChar);
                     x++;
                 }
-                //Console.Write("\n");
                 y++;
             }  
 
         }
 
-        internal string getLevelName()
-        {
-            return currentLevelName;
-        }
 
-        public List<Enemy> getLevelEnemies()
-        {
-            return enemyList;
-        }
-
-        internal bool isExitLevel()
-        {
-            return exitLevel;
-        }
-
-        //Check if player is colliding with a tile
+        /*************************************************
+         * Check if object is coliding with a tile
+         *************************************************/
         internal bool IsCollidingAt(FloatRectangle a_rect, Vector2 a_centerBottomPosition)
         {
-            //Vector2 topLeft = camera.getModelTopLeftPosition();
-            //Vector2 topRight = new Vector2(topLeft.X + 13, topLeft.Y);
-
             Vector2 topLeft = new Vector2(a_centerBottomPosition.X - 2, a_centerBottomPosition.Y);
             Vector2 topRight = new Vector2(a_centerBottomPosition.X + 2, a_centerBottomPosition.Y);
 
@@ -200,11 +196,6 @@ namespace WindowsGame1.Model
                     FloatRectangle rect = FloatRectangle.createFromTopLeft(new Vector2(x, y), tileSize);
                     if (a_rect.isIntersecting(rect))
                     {
-                        if (levelTiles[x, y].isEnemyStop())
-                        {
-                            return true;
-                        }
-
                         if (levelTiles[x, y].isBlocked())
                         {
                             player.setAllowedJump(true);
@@ -228,30 +219,6 @@ namespace WindowsGame1.Model
             return false;
         }
 
-        internal void ToggleTile(FloatRectangle a_mouse)
-        {
-            Vector2 tileSize = new Vector2(1f, 1f);
-            for (int x = 0; x < LEVEL_WIDTH; x++)
-            {
-                for (int y = 0; y < LEVEL_HEIGHT; y++)
-                {
-                    FloatRectangle rect = FloatRectangle.createFromTopLeft(new Vector2(x, y), tileSize);
-                    if (a_mouse.isIntersecting(rect))
-                    {
-                        if (levelTiles[x, y].isBlocked())
-                        {
-                            levelTiles[x, y] = Tile.createEmpty();
-                        }
-
-                        if(levelTiles[x, y].isEmpty())
-                        {
-                            levelTiles[x, y] = Tile.createBlocked();
-                        }
-                    }
-                }
-            }
-        }
-
         internal List<Gem> getLevelGems()
         {
             return gemList;
@@ -265,6 +232,21 @@ namespace WindowsGame1.Model
         internal bool finishedLastLevel()
         {
  	        return lastLevelFinished;
+        }
+
+        internal string getLevelName()
+        {
+            return currentLevelName;
+        }
+
+        public List<Enemy> getLevelEnemies()
+        {
+            return enemyList;
+        }
+
+        internal bool isExitLevel()
+        {
+            return exitLevel;
         }
     }
 }

@@ -74,7 +74,7 @@ namespace WindowsGame1.View
 
             Vector2 modelViewPortSize = new Vector2(a_viewPortSize.X / scale, a_viewPortSize.Y / scale);
 
-            //get model top left position
+            //Get model top left position
             modelTopLeftPosition = modelCenterPosition - modelViewPortSize / 2.0f;
 
             return (modelPosition - modelTopLeftPosition  )* scale;
@@ -97,19 +97,19 @@ namespace WindowsGame1.View
 
             Vector2 modelViewPortSize = new Vector2(a_viewPortSize.X / scale, a_viewPortSize.Y / scale);
 
-            //check left
+            //Check left
             if (modelCenterPosition.X < modelViewPortSize.X / 2.0f)
             {
                 modelCenterPosition.X = modelViewPortSize.X / 2.0f;
             }
 
-            //check bottom
+            //Check bottom
             if (modelCenterPosition.Y > a_levelSize.Y - modelViewPortSize.Y / 2.0f)
             {
                 modelCenterPosition.Y = a_levelSize.Y - modelViewPortSize.Y / 2.0f;
             }
 
-            //check top
+            //Check top
             if (modelCenterPosition.Y < modelViewPortSize.Y / 2.0f)
             {
                 modelCenterPosition.Y = modelViewPortSize.Y / 2.0f;
@@ -118,7 +118,7 @@ namespace WindowsGame1.View
 
         internal void setGameScale()
         {
-            //Räkna ut spelets skala
+            //Game scale
             scaleX = (float)screenWidth / (float)Model.Level.LEVEL_WIDTH;
             scaleY = (float)screenHeight / (float)Model.Level.LEVEL_HEIGHT;
         }

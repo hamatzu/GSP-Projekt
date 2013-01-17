@@ -8,6 +8,7 @@ namespace WindowsGame1.Model
 {
     class Enemy
     {
+        private EnemyType enemyType;
         Vector2 centerBottomPosition;
         Vector2 enemySpeed = new Vector2(0, 0f);
         private Vector2 enemySize = new Vector2(.80f, .95f);
@@ -16,18 +17,16 @@ namespace WindowsGame1.Model
         Point currentFrame = new Point(0, 0);
         float totalElapsed;
 
-        private float enemyWidth = 1;
-        private float enemyHeight = 1;
-
+        Direction currentDirection;
         float distance;
         float oldDistance;
-        Direction currentDirection;
+        
         FloatRectangle enemyBoundingBox;
-        private EnemyType enemyType;
         private FloatRectangle enemyTopBoundingBox;
         private bool dead = false;
+        private bool startExplosion = false;
 
-
+        // Enemy type
         public enum EnemyType
         {
             Ghost,
@@ -36,6 +35,7 @@ namespace WindowsGame1.Model
             HardRocker
         }
 
+        //Movement direction
         public enum Direction
         {
             Left,
@@ -162,17 +162,23 @@ namespace WindowsGame1.Model
                 //Ghosts don't apply any gravity
                 gravityAcceleration.Y = 0;
             }
-            
 
+            //No collision if dead
+            if (!isDead())
+            {
                 //integrate position
                 centerBottomPosition = centerBottomPosition + enemySpeed * a_elapsedTime + gravityAcceleration * a_elapsedTime * a_elapsedTime;
 
                 //integrate speed
                 enemySpeed = enemySpeed + a_elapsedTime * gravityAcceleration;
-            
-            
-            createBoundingBox();
+
+                createBoundingBox();
+                
+            }
+
             createTopBoundingBox();
+            
+
         }
 
         internal Vector2 getCenterBottomPosition()
@@ -225,9 +231,19 @@ namespace WindowsGame1.Model
             return dead;
         }
 
-        internal void setDead()
+        internal void setDead(bool areDead)
         {
-            dead = true;
+            dead = areDead;
+        }
+
+        internal void doExplosion(bool exp)
+        {
+            startExplosion = exp;
+        }
+
+        internal bool startDeadExplosion()
+        {
+            return startExplosion;
         }
     }
 }
