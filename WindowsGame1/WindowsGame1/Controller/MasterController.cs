@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using WindowsGame1.View;
 
 
 //I am adding some comment code to test GIT!
@@ -22,12 +23,9 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Texture2D smokeTexture;
-
-        View.SmokeSystem smokeSystem;
-        View.SmokeSystem smokeSystem2;
         private View.Camera m_camera;
-        private View.SmokeSystem smokeSystem3;
+        private View.ExplosionSystem explosionSystem;
+        private ExplosionSystem explosionSystem2;
 
         public MasterController()
         {
@@ -63,11 +61,8 @@ namespace WindowsGame1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            smokeTexture = Content.Load<Texture2D>("smoke");
-
-            smokeSystem = new View.SmokeSystem(new Vector2(4, 4), smokeTexture, 1f);
-            smokeSystem2 = new View.SmokeSystem(new Vector2(6, 8), smokeTexture, 5f);
-            smokeSystem3 = new View.SmokeSystem(new Vector2(2, 9), smokeTexture, 9f);
+            explosionSystem = new ExplosionSystem(new Vector2(4, 4));
+            explosionSystem.LoadContent(Content);
         }
 
         /// <summary>
@@ -111,13 +106,12 @@ namespace WindowsGame1
         {
             GraphicsDevice.Clear(Color.White);
 
-            if (smokeSystem == null)
+            if (explosionSystem == null)
                 return;
-            // TODO: Add your drawing code here
-            smokeSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
-            smokeSystem2.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
-            smokeSystem3.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
 
+            spriteBatch.Begin();
+            explosionSystem.UpdateExplosion((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }

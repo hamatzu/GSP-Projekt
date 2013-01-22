@@ -10,7 +10,7 @@ namespace WindowsGame1.View
     class Particle
     {
 
-        public static Vector2 GRAVITY;
+        public Vector2 GRAVITY;
         public static float MAX_LIFE;
         public static float MIN_SPEED;
         public static float MAX_SPEED;
@@ -26,8 +26,6 @@ namespace WindowsGame1.View
         public float particleScale;
         public float particleLifePercent;
         public float particleRotation;
-        private Texture2D particleTexture;
-        private Vector2 particleOrigin;
 
 
         public Particle(Vector2 position, int random_seed)
@@ -36,12 +34,6 @@ namespace WindowsGame1.View
             particleTimeLived = 0;
             particlePosition = position;
             particleVelocity = getRandomVelocity(random_seed);
-        }
-
-        internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager a_content)
-        {
-            particleTexture = a_content.Load<Texture2D>("smoke");
-            particleOrigin = new Vector2(particleTexture.Width / 2f, particleTexture.Height / 2f);
         }
 
         //private void Respawn(Vector2 position, int random_seed)

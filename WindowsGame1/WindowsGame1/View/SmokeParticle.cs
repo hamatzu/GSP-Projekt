@@ -11,10 +11,10 @@ namespace WindowsGame1.View
         public SmokeParticle(Vector2 position, int random_seed) : base(position, random_seed)
         {
             GRAVITY = new Vector2(0, -0.1f);
-            MAX_LIFE = 10f;
+            MAX_LIFE = 7f;
             MIN_SPEED = .1f;
             MAX_SPEED = .2f;
-            MAX_SCALE = 15f;
+            MAX_SCALE = 10f;
             MIN_SCALE = .1f;
         }
 

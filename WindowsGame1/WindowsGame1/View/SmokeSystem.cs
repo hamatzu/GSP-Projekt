@@ -73,7 +73,6 @@ namespace WindowsGame1.View
             a_spriteBatch.Begin();
             for (int index = 0; index < allSmokeParticles.Count; index++)
             {
-
                 //Update particle
                 allSmokeParticles.ElementAt(index).Update(a_elapsedTime, systemPosition, index);
 
