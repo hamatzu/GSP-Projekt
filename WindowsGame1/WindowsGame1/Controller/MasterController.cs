@@ -85,7 +85,7 @@ namespace WindowsGame1
 
             fadeTime = maxFadeTime;
             this.Window.Title = "In Search of The Disco";
-            this.IsMouseVisible = true;
+            this.IsMouseVisible = false;
 
             base.Initialize();
         }
