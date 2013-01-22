@@ -35,6 +35,14 @@ namespace WindowsGame1.View
                                model_Y * scaleY + displacementY);
         }
 
+        public Vector2 convertToModel(float view_X, float view_Y)
+        {
+            float model_X = (view_X - displacementX) / scaleX;
+            float model_Y = (view_Y - displacementY) / scaleY;
+
+            return new Vector2(model_X, model_Y);
+        }
+
         internal float GetBorderWidth()
         {
             return borderWidth;

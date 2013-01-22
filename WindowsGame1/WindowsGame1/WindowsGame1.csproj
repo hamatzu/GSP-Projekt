@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\GameController.cs" />
     <Compile Include="Model\Ball.cs" />
     <Compile Include="Model\BallSimulation.cs" />
     <Compile Include="Model\Level.cs" />

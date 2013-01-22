@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using WindowsGame1.View;
+using WindowsGame1.Controller;
 
 
 //I am adding some comment code to test GIT!
@@ -26,6 +27,7 @@ namespace WindowsGame1
         Model.BallSimulation ballSimulation = new Model.BallSimulation();
         View.BallView ballView = new View.BallView();
         Camera camera;
+        GameController playerInput = new GameController();
         
 
 
@@ -63,6 +65,7 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
             //Load content in view
+            playerInput.LoadContent(Content);
             ballView.LoadContent(Content, graphics.GraphicsDevice);
         }
 
@@ -86,7 +89,8 @@ namespace WindowsGame1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            // TODO: Add your update logic here
+            playerInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, ballSimulation);
+
             ballSimulation.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
