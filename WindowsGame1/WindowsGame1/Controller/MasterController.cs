@@ -66,7 +66,7 @@ namespace WindowsGame1
             
             //Load content in view
             playerInput.LoadContent(Content);
-            ballView.LoadContent(Content, graphics.GraphicsDevice);
+            //ballView.LoadContent(Content, graphics.GraphicsDevice);
         }
 
         /// <summary>
@@ -89,9 +89,7 @@ namespace WindowsGame1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            playerInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, ballSimulation);
-
-            ballSimulation.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            //ballSimulation.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
@@ -101,11 +99,11 @@ namespace WindowsGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.White);
 
             // TODO: Add your drawing code here
-            ballView.Draw(ballSimulation, spriteBatch, camera);
-
+            //ballView.Draw(ballSimulation, spriteBatch, camera);
+            playerInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, ballSimulation, spriteBatch, Content);
 
             base.Draw(gameTime);
         }

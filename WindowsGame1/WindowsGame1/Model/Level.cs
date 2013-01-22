@@ -7,7 +7,7 @@ namespace WindowsGame1.Model
 {
     class Level
     {
-        public const float LEVEL_WIDTH = 1;
-        public const float LEVEL_HEIGHT = 1;
+        public const float LEVEL_WIDTH = 10;
+        public const float LEVEL_HEIGHT = 10;
     }
 }

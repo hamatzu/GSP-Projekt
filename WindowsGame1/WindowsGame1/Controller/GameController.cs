@@ -7,6 +7,7 @@ using WindowsGame1.View;
 using WindowsGame1.Model;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace WindowsGame1.Controller
 {
@@ -15,8 +16,9 @@ namespace WindowsGame1.Controller
         private MouseState mouseOld;
         private SoundEffect fire;
         private SoundEffectInstance fireInstance;
+        private ExplosionSystem explosion;
 
-        internal void Update(float a_gameTime, Camera a_camera, BallSimulation a_ballSimulation)
+        internal void Update(float a_gameTime, Camera a_camera, BallSimulation a_ballSimulation, SpriteBatch a_spriteBatch, Microsoft.Xna.Framework.Content.ContentManager a_content)
         {
             MouseState mouse = Mouse.GetState();
 
@@ -25,11 +27,17 @@ namespace WindowsGame1.Controller
                 if (mouseOld.LeftButton == ButtonState.Released)
                 {
                     Vector2 modelPosition = a_camera.convertToModel(mouse.X, mouse.Y);
-                    a_ballSimulation.getBall().setBallCenterPosition(modelPosition);
+                    explosion = new ExplosionSystem(modelPosition);
+                    explosion.LoadContent(a_content);
+
                     fireInstance = fire.CreateInstance();
                     fireInstance.Play();
                 }
             }
+            if (explosion == null)
+                return;
+
+            explosion.UpdateExplosion(a_gameTime, a_spriteBatch, a_camera);
 
             mouseOld = mouse;
         }

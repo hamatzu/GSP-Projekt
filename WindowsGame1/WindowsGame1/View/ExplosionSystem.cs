@@ -18,7 +18,7 @@ namespace WindowsGame1.View
 
         //State 
         List<SmokeParticle> allSmokeParticles = new List<SmokeParticle>();
-        List<SplitterParticle> allSplitterParticles = new List<SplitterParticle>();
+        public List<SplitterParticle> allSplitterParticles = new List<SplitterParticle>();
         private float rotation;
         private float scale;
         private Vector2 systemPosition;
@@ -47,7 +47,6 @@ namespace WindowsGame1.View
         {
             systemPosition = a_modelPosition;
             sm_releaseRate = 1f / (float)sm_particlesPerSecond;
-
             //Create array with all particles 
             for (int i = 0; i < INIT_PARTICLES; i++)
             {
@@ -68,9 +67,11 @@ namespace WindowsGame1.View
 
         internal void UpdateExplosion(float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)
         {
+            a_spriteBatch.Begin();
             UpdateAndDrawSplitter(a_elapsedTime, a_spriteBatch, a_camera);
             UpdateAndDrawSmoke(a_elapsedTime, a_spriteBatch, a_camera);
             UpdateAndDrawExplosion(a_elapsedTime, a_spriteBatch, a_camera);
+            a_spriteBatch.End();
         }
 
         internal void UpdateAndDrawSmoke(float a_elapsedTime, SpriteBatch a_spriteBatch, Camera a_camera)
