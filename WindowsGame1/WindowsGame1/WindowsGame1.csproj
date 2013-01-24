@@ -110,6 +110,7 @@
     <Compile Include="Controller\GameController.cs" />
     <Compile Include="Model\Ball.cs" />
     <Compile Include="Model\BallSimulation.cs" />
+    <Compile Include="Model\GameModel.cs" />
     <Compile Include="Model\Level.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="View\BallView.cs" />
     <Compile Include="View\Camera.cs" />
     <Compile Include="View\ExplosionSystem.cs" />
+    <Compile Include="View\GameView.cs" />
     <Compile Include="View\Particle.cs" />
     <Compile Include="View\SmokeParticle.cs" />
     <Compile Include="View\SplitterParticle.cs" />

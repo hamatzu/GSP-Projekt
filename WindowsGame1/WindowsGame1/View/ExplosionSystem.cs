@@ -123,7 +123,6 @@ namespace WindowsGame1.View
                 if (!allSmokeParticles.ElementAt(z).IsAlive())
                 {
                     allSmokeParticles.RemoveAt(z);
-                    Console.WriteLine("removed");
                     z--;
                 }
             }
@@ -165,7 +164,6 @@ namespace WindowsGame1.View
                 if (!allSplitterParticles.ElementAt(z).IsAlive())
                 {
                     allSplitterParticles.RemoveAt(z);
-                    Console.WriteLine("removed");
                     z--;
                 }
             }

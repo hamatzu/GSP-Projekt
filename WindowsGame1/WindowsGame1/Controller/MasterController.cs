@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using WindowsGame1.View;
 using WindowsGame1.Controller;
+using WindowsGame1.Model;
 
 
 //I am adding some comment code to test GIT!
@@ -24,10 +25,10 @@ namespace WindowsGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Model.BallSimulation ballSimulation = new Model.BallSimulation();
-        View.BallView ballView = new View.BallView();
         Camera camera;
-        GameController playerInput = new GameController();
+        GameModel game;
+        GameView gameView;
+        GameController gameInput;
         
 
 
@@ -48,9 +49,6 @@ namespace WindowsGame1
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            camera = new Camera(graphics.GraphicsDevice.Viewport);
-
             this.IsMouseVisible = true;
             base.Initialize();
         }
@@ -63,9 +61,15 @@ namespace WindowsGame1
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            
+
+            camera = new Camera(graphics.GraphicsDevice.Viewport);
+
+            game = new GameModel();
+            gameView = new GameView(game, spriteBatch, camera);
+            gameInput = new GameController();
+
             //Load content in view
-            playerInput.LoadContent(Content);
+            gameInput.LoadContent(Content);
             //ballView.LoadContent(Content, graphics.GraphicsDevice);
         }
 
@@ -89,7 +93,6 @@ namespace WindowsGame1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            //ballSimulation.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
@@ -103,7 +106,8 @@ namespace WindowsGame1
 
             // TODO: Add your drawing code here
             //ballView.Draw(ballSimulation, spriteBatch, camera);
-            playerInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, ballSimulation, spriteBatch, Content);
+            gameInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, game, spriteBatch, Content);
+            gameView.UpdateAndDrawAllExplosions((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Draw(gameTime);
         }
