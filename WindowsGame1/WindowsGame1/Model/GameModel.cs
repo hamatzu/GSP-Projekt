@@ -48,8 +48,8 @@ namespace WindowsGame1.Model
         {
             for (int z = 0; z < allBallSimulations.Count; z++)
             {
-                if ((int)a_modelPosition.X == (int)allBallSimulations.ElementAt(z).getBall().getBallCenterPosition().X &&
-                    (int)a_modelPosition.Y == (int)allBallSimulations.ElementAt(z).getBall().getBallCenterPosition().Y)
+                float distance = (allBallSimulations.ElementAt(z).getBall().getBallCenterPosition() - a_modelPosition).Length();
+                if(distance < 1.0f)
                 {
                     allBallSimulations.ElementAt(z).getBall().setHit(true);
                 }
