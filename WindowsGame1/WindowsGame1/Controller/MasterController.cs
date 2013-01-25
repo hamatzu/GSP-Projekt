@@ -65,7 +65,7 @@ namespace WindowsGame1
             camera = new Camera(graphics.GraphicsDevice.Viewport);
 
             game = new GameModel();
-            gameView = new GameView(game, spriteBatch, camera);
+            gameView = new GameView(spriteBatch, camera);
             gameInput = new GameController();
 
             //Load content in view
@@ -106,7 +106,7 @@ namespace WindowsGame1
 
             // TODO: Add your drawing code here
             //ballView.Draw(ballSimulation, spriteBatch, camera);
-            gameInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, game, spriteBatch, Content);
+            gameInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, game, gameView, spriteBatch, Content);
             gameView.UpdateAndDrawAllExplosions((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Draw(gameTime);

@@ -13,7 +13,7 @@ namespace WindowsGame1.View
         {
             GRAVITY = new Vector2(0, 1f);
             MAX_LIFE = 2f;
-            MIN_SPEED = .2f;
+            MIN_SPEED = 1f;
             MAX_SPEED = 1.5f;
             particleScale = .15f;
         }
