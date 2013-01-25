@@ -26,6 +26,12 @@ namespace WindowsGame1
         private View.Camera m_camera;
         private View.ExplosionSystem explosionSystem;
         private ExplosionSystem explosionSystem2;
+        private ExplosionSystem explosionSystem3;
+        private double currentDuration;
+        private double totalDuration = 3;
+        private double totalDuration2 = 6;
+        
+        private double currentDuration2;
 
         public MasterController()
         {
@@ -62,7 +68,11 @@ namespace WindowsGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             explosionSystem = new ExplosionSystem(new Vector2(4, 4));
+            explosionSystem2 = new ExplosionSystem(new Vector2(6, 6));
+            explosionSystem3 = new ExplosionSystem(new Vector2(3, 5));
             explosionSystem.LoadContent(Content);
+            explosionSystem2.LoadContent(Content);
+            explosionSystem3.LoadContent(Content);
         }
 
         /// <summary>
@@ -85,16 +95,6 @@ namespace WindowsGame1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            //if(Mouse.GetState().LeftButton == ButtonState.Pressed)
-            //{
-            //    Console.WriteLine("Pressed");
-            //    smokeSystem = new View.SmokeSystem(m_camera.convertToModel(Mouse.GetState().X, Mouse.GetState().Y), smokeTexture);
-            //}
-
-            // TODO: Add your update logic here
-
-            //splitterSystem.UpdateAndDraw((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, new View.Camera(graphics.GraphicsDevice.Viewport));
-
             base.Update(gameTime);
         }
 
@@ -111,6 +111,24 @@ namespace WindowsGame1
 
             spriteBatch.Begin();
             explosionSystem.UpdateExplosion((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
+
+            currentDuration += gameTime.ElapsedGameTime.TotalSeconds;
+
+
+            if (currentDuration > totalDuration)
+            {
+                explosionSystem2.UpdateExplosion((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
+                currentDuration = totalDuration;
+            }
+
+            currentDuration2 += gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (currentDuration2 > totalDuration2)
+            {
+                explosionSystem3.UpdateExplosion((float)gameTime.ElapsedGameTime.TotalSeconds, spriteBatch, m_camera);
+                currentDuration2 = totalDuration2;
+            }
+            
             spriteBatch.End();
 
             base.Draw(gameTime);
