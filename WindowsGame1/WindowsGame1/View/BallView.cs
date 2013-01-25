@@ -38,7 +38,7 @@ namespace WindowsGame1.View
 
             //Calculate ball to draw
                 float viewBallWidth = (ballWidth * camera.GetScaleX());
-                float viewBallHeight = (ballWidth  * camera.GetScaleX());
+                float viewBallHeight = (ballWidth * camera.GetScaleY());
 
                 Vector2 ballviewTopLeft = camera.convertToView(ballCenterPosition.X - ballWidth / 2,
                                                                ballCenterPosition.Y - ballWidth / 2);

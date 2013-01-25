@@ -34,7 +34,7 @@ namespace WindowsGame1
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            graphics.PreferredBackBufferWidth = 640;
+            graphics.PreferredBackBufferWidth = 320;
             graphics.PreferredBackBufferHeight = 640;
         }
 
