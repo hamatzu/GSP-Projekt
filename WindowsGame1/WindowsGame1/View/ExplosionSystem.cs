@@ -48,6 +48,8 @@ namespace WindowsGame1.View
             systemPosition = a_modelPosition;
             sm_releaseRate = 1f / (float)sm_particlesPerSecond;
             //Create array with all particles 
+            allSmokeParticles.Clear();
+            allSplitterParticles.Clear();
             for (int i = 0; i < INIT_PARTICLES; i++)
             {
                 allSplitterParticles.Add(new SplitterParticle(a_modelPosition, i));
