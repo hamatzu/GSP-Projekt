@@ -10,9 +10,9 @@ namespace WindowsGame1.Model
     {
         Ball ball;
 
-        public BallSimulation()
+        public BallSimulation(int randomSeed)
         {
-            ball = new Ball();
+            ball = new Ball(randomSeed);
         }
 
         internal void Update(float elapsedTimeSeconds)

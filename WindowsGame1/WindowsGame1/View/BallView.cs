@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using WindowsGame1.Model;
 
 namespace WindowsGame1.View
 {
@@ -14,6 +15,14 @@ namespace WindowsGame1.View
         Texture2D whiteTexture;
         Texture2D blackTexture;
         Texture2D lineTexture;
+        BallSimulation m_ballSimulation;
+        private Ball m_ball;
+
+        public BallView(BallSimulation a_ballSimulation)
+        {
+            m_ballSimulation = a_ballSimulation;
+            m_ball = m_ballSimulation.getBall();
+        }
         
 
         internal void LoadContent(Microsoft.Xna.Framework.Content.ContentManager a_content, GraphicsDevice a_graphicdevice)
@@ -27,13 +36,13 @@ namespace WindowsGame1.View
 
         }
 
-        internal void Draw(Model.BallSimulation ballSimulation, Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Camera camera)
+        internal void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Camera camera)
         {
 
             //Get ball properties
-                float ballRadius = ballSimulation.getBall().getBallRadius();
-                float ballWidth = ballSimulation.getBall().getBallWidth();
-                Vector2 ballCenterPosition = ballSimulation.getBall().getBallCenterPosition();
+                float ballRadius = m_ballSimulation.getBall().getBallRadius();
+                float ballWidth = m_ballSimulation.getBall().getBallWidth();
+                Vector2 ballCenterPosition = m_ballSimulation.getBall().getBallCenterPosition();
 
 
             //Calculate ball to draw
@@ -64,7 +73,10 @@ namespace WindowsGame1.View
                         spriteBatch.Draw(lineTexture, new Vector2(camera.GetDisplacementX(), camera.GetDisplacementX()), null, Color.White, 0f, Vector2.Zero, new Vector2(borderWidth, camera.GetScreenHeight() - (2 * camera.GetDisplacementY())), SpriteEffects.None, 0);    
                
                         //Draw Ball
-                        spriteBatch.Draw(ballTexture, ballDestinationRectangle, Color.White);
+                        if (!m_ball.isDead())
+                        {
+                            spriteBatch.Draw(ballTexture, ballDestinationRectangle, Color.White);
+                        }
 
                 spriteBatch.End();
         }

@@ -29,6 +29,7 @@ namespace WindowsGame1.Controller
                     ExplosionSystem explosion = new ExplosionSystem(modelPosition);
                     explosion.LoadContent(a_content);
                     a_game.addExplosion(explosion);
+                    a_game.checkBallHit(modelPosition);
 
                     fireInstance = fire.CreateInstance();
                     fireInstance.Play();

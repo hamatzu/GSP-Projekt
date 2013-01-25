@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WindowsGame1.View;
+using Microsoft.Xna.Framework;
 
 namespace WindowsGame1.Model
 {
     class GameModel
     {
-        BallSimulation m_ballSimulation;
+        List<BallSimulation> allBallSimulations = new List<BallSimulation>();
         List<ExplosionSystem> allExplosions = new List<ExplosionSystem>();
+        int nrOfBalls = 20;
 
         public GameModel()
         {
-            m_ballSimulation = new BallSimulation();
+            for (int i = 0; i < nrOfBalls; i++)
+            {
+                allBallSimulations.Add(new BallSimulation(i));
+            }
         }
 
         internal void addExplosion(ExplosionSystem explosion)
@@ -21,10 +26,34 @@ namespace WindowsGame1.Model
             allExplosions.Add(explosion);
         }
 
-
         internal List<ExplosionSystem> getExplosions()
         {
             return allExplosions;
+        }
+
+        internal List<BallSimulation> getBallSimulations()
+        {
+            return allBallSimulations;
+        }
+
+        internal void UpdateGame(float a_elapsedTime)
+        {
+            foreach (BallSimulation aBallSimulation in allBallSimulations)
+            {
+                aBallSimulation.Update(a_elapsedTime);
+            }
+        }
+
+        internal void checkBallHit(Vector2 a_modelPosition)
+        {
+            for (int z = 0; z < allBallSimulations.Count; z++)
+            {
+                if ((int)a_modelPosition.X == (int)allBallSimulations.ElementAt(z).getBall().getBallCenterPosition().X &&
+                    (int)a_modelPosition.Y == (int)allBallSimulations.ElementAt(z).getBall().getBallCenterPosition().Y)
+                {
+                    allBallSimulations.ElementAt(z).getBall().setHit(true);
+                }
+            }
         }
     }
 }

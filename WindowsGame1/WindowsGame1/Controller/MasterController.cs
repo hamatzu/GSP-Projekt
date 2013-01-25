@@ -29,6 +29,8 @@ namespace WindowsGame1
         GameModel game;
         GameView gameView;
         GameController gameInput;
+        private Texture2D cursorTexture;
+        private Vector2 cursorPos;
         
 
 
@@ -68,9 +70,11 @@ namespace WindowsGame1
             gameView = new GameView(game, spriteBatch, camera);
             gameInput = new GameController();
 
+            cursorTexture = Content.Load<Texture2D>("cursor");
+
             //Load content in view
             gameInput.LoadContent(Content);
-            //ballView.LoadContent(Content, graphics.GraphicsDevice);
+            gameView.LoadContent(Content, graphics.GraphicsDevice);
         }
 
         /// <summary>
@@ -93,7 +97,13 @@ namespace WindowsGame1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
+            MouseState mouseState = Mouse.GetState();
+            cursorPos = new Vector2(mouseState.X - cursorTexture.Width / 2, mouseState.Y - cursorTexture.Height / 2);
+
+            gameInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, game, spriteBatch, Content);
+            game.UpdateGame((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
+            
         }
 
         /// <summary>
@@ -102,11 +112,13 @@ namespace WindowsGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
-            //ballView.Draw(ballSimulation, spriteBatch, camera);
-            gameInput.Update((float)gameTime.ElapsedGameTime.TotalSeconds, camera, game, spriteBatch, Content);
+            spriteBatch.Begin();
+            spriteBatch.Draw(cursorTexture, cursorPos, Color.White);
+            spriteBatch.End();
+
+            gameView.DrawGame(spriteBatch, camera);
             gameView.UpdateAndDrawAllExplosions((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Draw(gameTime);
